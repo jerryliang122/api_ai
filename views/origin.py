@@ -23,8 +23,8 @@ def load_model():
     global tokenizer, model, model_loaded
     try:
         model_loaded = True
-        tokenizer = AutoTokenizer.from_pretrained("THUDM/chatglm-6b", trust_remote_code=True, local_files_only=True)
-        model = AutoModel.from_pretrained("THUDM/chatglm-6b", trust_remote_code=True, local_files_only=True).half().cuda()
+        tokenizer = AutoTokenizer.from_pretrained("THUDM/chatglm-6b", trust_remote_code=True)
+        model = AutoModel.from_pretrained("THUDM/chatglm-6b", trust_remote_code=True).half().cuda()
         #完成后将模型状态设置为True
     except Exception as e:
         #打印错误日志
