@@ -32,7 +32,7 @@ def load_model():
     except Exception as e:
         #打印错误日志
         print(e)
-        model_loaded = False
+        model_loaded_chatglm = False
         return
     global model_stats_chatglm
     model_stats_chatglm = True
@@ -53,8 +53,6 @@ def reset_model_stats():
         model_loaded_chatglm = False
     return
 
-#设置定时器，每5秒执行一次
-timer = threading.Timer(5, reset_model_stats)
 @origin_bp.route('/', methods=['POST'])
 async def index(request):
     global time_visit
@@ -69,6 +67,8 @@ async def index(request):
             return json({'response': '模型尚未准备就绪','history':[],"status": 500,"time":time_visit.strftime('%Y-%m-%d %H:%M:%S')})
         #使用多线程的方式加载模型
         threading.Thread(target=load_model).start()
+        #设置定时器，每5秒执行一次
+        threading.Timer(5, reset_model_stats).start()
         return json({'response': '模型尚未准备就绪','history':[],"status": 500,"time":time_visit.strftime('%Y-%m-%d %H:%M:%S')})
     #如果模型加载完成，返回结果
     response, history = model.chat(tokenizer,
