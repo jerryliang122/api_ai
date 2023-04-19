@@ -44,6 +44,8 @@ def reset_model_stats():
     #查看时间
     time_now = datetime.datetime.now()
     #如果当前时间与上次访问时间相差30分钟，回收模型
+    if model_stats_chatglm == False:
+        return
     if (time_now - time_visit).seconds > 1800:
         del model
         del tokenizer
