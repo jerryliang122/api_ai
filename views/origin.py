@@ -20,10 +20,11 @@ def torch_gc():
         with torch.cuda.device(CUDA_DEVICE):
             torch.cuda.empty_cache()
             torch.cuda.ipc_collect()
-
+model_lock = threading.Lock()
 #使用多线程加载模型
 def load_model():
     global tokenizer, model, model_loaded_chatglm 
+    model_lock.acquire()
     try:
         model_loaded_chatglm = True
         tokenizer = AutoTokenizer.from_pretrained("THUDM/chatglm-6b", trust_remote_code=True)
@@ -40,7 +41,7 @@ def load_model():
 #当30分钟后没有访问，将模型状态设置为False，并回收模型
 def reset_model_stats():
     global model_stats_chatglm,model_loaded_chatglm, model, tokenizer
-    
+    model_lock.acquire()
     #查看时间
     time_now = datetime.datetime.now()
     #如果当前时间与上次访问时间相差30分钟，回收模型
@@ -49,6 +50,8 @@ def reset_model_stats():
     if (time_now - time_visit).seconds > 1800:
         del model
         del tokenizer
+        torch.cuda.empty_cache()
+        torch.cuda.ipc_collect()
         model_stats_chatglm = False
         model_loaded_chatglm = False
     return
