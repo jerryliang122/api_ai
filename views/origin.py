@@ -1,7 +1,7 @@
 from sanic import Blueprint
 from sanic.response import json
 import datetime
-from transformers import AutoTokenizer, AutoModel 
+from transformers import AutoTokenizer, AutoModel
 import torch
 import asyncio
 
@@ -38,8 +38,8 @@ async def load_model():
     global last_access_time
 
     # 加载模型和 tokenizer
-    tokenizer = AutoTokenizer.from_pretrained("THUDM/chatglm-6b", trust_remote_code=True)
-    model = AutoModel.from_pretrained("THUDM/chatglm-6b", trust_remote_code=True).half().cuda()
+    tokenizer = AutoTokenizer.from_pretrained("./model/chatglm-6b", trust_remote_code=True, local_files_only=True)
+    model = AutoModel.from_pretrained("./model/chatglm-6b", trust_remote_code=True, local_files_only=True).half().cuda()
 
     # 记录当前时间
     last_access_time = datetime.datetime.now()
