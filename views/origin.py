@@ -14,7 +14,7 @@ model = None
 last_access_time = None
 
 # 定义一个时间间隔，表示多长时间没有访问模型后自动关闭模型
-TIMEOUT = 1 * 60  # 30 分钟
+TIMEOUT = 30 * 60  # 30 分钟
 
 # 创建一个 asyncio.Event 对象
 stop_event = asyncio.Event()
