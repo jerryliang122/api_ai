@@ -5,6 +5,7 @@ from transformers import AutoTokenizer, AutoModel
 import torch
 import asyncio
 
+
 origin_bp = Blueprint('origin', url_prefix='/origin')
 #全局变量，用于存储模型和 tokenizer
 tokenizer = None
@@ -18,6 +19,17 @@ TIMEOUT = 30 * 60  # 30 分钟
 
 # 创建一个 asyncio.Event 对象
 stop_event = asyncio.Event()
+
+DEVICE = "cuda"
+DEVICE_ID = "0"
+CUDA_DEVICE = f"{DEVICE}:{DEVICE_ID}" if DEVICE_ID else DEVICE
+
+#回收显存
+def torch_gc():
+    if torch.cuda.is_available():
+        with torch.cuda.device(CUDA_DEVICE):
+            torch.cuda.empty_cache()
+            torch.cuda.ipc_collect()
 
 # 异步任务：加载模型
 async def load_model():
@@ -46,8 +58,7 @@ async def load_model():
             tokenizer = None
             last_access_time = None
             #回收显存
-            torch.cuda.empty_cache()
-            torch.cuda.ipc_collect()
+            torch_gc()
             break
 
         # 等待一段时间后再次检查
@@ -81,6 +92,7 @@ async def index(request):
                                    max_length=2048,
                                    top_p=0.7,
                                    temperature=0.95)
+    torch_gc()
     answer = {
         "response": response,
         "history": history,
