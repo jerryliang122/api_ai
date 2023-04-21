@@ -12,6 +12,7 @@ origin_bp = Blueprint('origin', url_prefix='/origin')
 # 全局变量，用于记录上次访问模型的时间
 last_access_time = None
 loading = False
+model = None
 # 定义一个时间间隔，表示多长时间没有访问模型后自动关闭模型
 TIMEOUT = 5 * 60  # 5 分钟
 
