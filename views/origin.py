@@ -13,7 +13,7 @@ model = None
 
 # 全局变量，用于记录上次访问模型的时间
 last_access_time = None
-
+loading = False
 # 定义一个时间间隔，表示多长时间没有访问模型后自动关闭模型
 TIMEOUT = 30 * 60  # 30 分钟
 
@@ -73,6 +73,7 @@ async def index(request):
     global tokenizer
     global model
     global last_access_time
+    global loading
 
     data = request.json
     prompt = data.get('prompt')
