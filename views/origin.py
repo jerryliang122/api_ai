@@ -36,6 +36,8 @@ async def load_model():
     global tokenizer
     global model
     global last_access_time
+    global loading
+    loading = True
 
     # 加载模型和 tokenizer
     tokenizer = AutoTokenizer.from_pretrained("./model/chatglm-6b", trust_remote_code=True, local_files_only=True)
@@ -57,6 +59,7 @@ async def load_model():
             model = None
             tokenizer = None
             last_access_time = None
+            loading = False
             #回收显存
             torch_gc()
             break
@@ -75,10 +78,19 @@ async def index(request):
     prompt = data.get('prompt')
     history = data.get('history')
     # 如果模型尚未加载，则创建异步任务来加载模型
+    if loading is True and model is None:
+        answer = {
+            'response': '模型尚未准备就绪，预计3分钟。届时请重新请求',
+            'history': [],
+            'status': 500,
+            'time': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        }
+        return json(answer,ensure_ascii=False)
+
     if tokenizer is None or model is None:
         task = asyncio.create_task(load_model())
         answer = {
-            'response': '模型尚未准备就绪',
+            'response': '模型尚未准备就绪，预计3分钟。届时请重新请求',
             'history': [],
             'status': 500,
             'time': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
