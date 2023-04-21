@@ -1,10 +1,11 @@
 from sanic import Blueprint
-from sanic.response import json
+from sanic.response import json 
 import datetime
 from transformers import AutoTokenizer, AutoModel
 import torch
 import asyncio
-from model.chatglm import chatGLM_6B
+from model.stable_diffusion import drawing
+import io
 
 
 origin_bp = Blueprint('origin', url_prefix='/origin')
@@ -42,22 +43,13 @@ async def index(request):
     #加载模型
     global model
     if model is None:
-        model = chatGLM_6B()
+        model = drawing()
     #启动定时器
     asyncio.create_task(timer())
     data = request.json
     prompt = data.get('prompt')
-    history = data.get('history')
     # 记录当前时间
     last_access_time = datetime.datetime.now()
-    response, history = model(prompt,history)
-
-    answer = {
-        "response": response,
-        "history": history,
-        "status": 200,
-        "time": datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    }
-
-    return json(answer,ensure_ascii=False)
-
+    response = model(prompt)
+    # 返回二进制
+    return json({"image": response})
