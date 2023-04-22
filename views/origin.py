@@ -14,13 +14,16 @@ last_access_time = None
 loading = False
 model = None
 # 定义一个时间间隔，表示多长时间没有访问模型后自动关闭模型
-TIMEOUT = 5 * 60  # 5 分钟
+TIMEOUT = 1 * 60  # 5 分钟
 
 # 创建一个 asyncio.Event 对象
 stop_event = asyncio.Event()
 
 #定时器
 async def timer():
+    global model,loading
+    model = chatGLM_6B()
+    loading = True
     # 进入循环，等待下一次访问
     while not stop_event.is_set():
         # 计算当前时间和上次访问时间的差值
@@ -31,6 +34,7 @@ async def timer():
             del model
             # 清空全局变量
             model = None
+            loading = False
             break
         #每隔一段时间检查一次
         await asyncio.sleep(5)
@@ -40,12 +44,13 @@ async def timer():
 @origin_bp.route('/', methods=['POST'])
 async def index(request):
     global last_access_time
+    last_access_time = datetime.datetime.now()
     #加载模型
-    global model
     if model is None:
-        model = chatGLM_6B()
-    #启动定时器
-    asyncio.create_task(timer())
+        #启动定时器
+        asyncio.create_task(timer())
+    while not loading:
+        await asyncio.sleep(1)
     data = request.json
     prompt = data.get('prompt')
     history = data.get('history')
