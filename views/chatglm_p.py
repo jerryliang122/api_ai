@@ -7,7 +7,7 @@ import asyncio
 from model.chatglm import chatGLM_6B
 
 
-origin_bp = Blueprint('origin', url_prefix='/origin')
+chatglm_p = Blueprint('chatglm_p', url_prefix='/chatglm_p')
 
 # 全局变量，用于记录上次访问模型的时间
 last_access_time = None
@@ -41,7 +41,7 @@ async def timer():
 
 
 
-@origin_bp.route('/', methods=['POST'])
+@chatglm_p.route('/', methods=['POST'])
 async def index(request):
     global last_access_time
     last_access_time = datetime.datetime.now()

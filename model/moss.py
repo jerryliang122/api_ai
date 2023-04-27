@@ -8,7 +8,7 @@ CUDA_DEVICE = f"{DEVICE}:{DEVICE_ID}" if DEVICE_ID else DEVICE
 class moss_model():
     def __init__(self):
         self.tokenizer = AutoTokenizer.from_pretrained("/root/model/moss-moon-003-sft-plugin-int4", trust_remote_code=True, local_files_only=True)
-        self.model = AutoModelForCausalLM.from_pretrained("/root/model/moss-moon-003-sft-plugin-int4", trust_remote_code=True).half().cuda()
+        self.model = AutoModelForCausalLM.from_pretrained("/root/model/moss-moon-003-sft-plugin-int4", trust_remote_code=True, local_files_only=True).half().cuda()
 
     def __call__(self,prompt,history):
         plain_text = "<|Human|>:"+prompt+"<eoh>\n<|MOSS|>:"

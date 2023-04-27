@@ -1,10 +1,12 @@
 from sanic import Sanic
-from views.origin import origin_bp
+from views.chatglm_p import chatglm_p
+from views.chatglm_l import chatglm_l
 from views.sd import stable_diffusion_bp
 from views.moss import moss_bp
 
 app = Sanic(__name__)
-app.blueprint(origin_bp)
+app.blueprint(chatglm_p)
+app.blueprint(chatglm_l)
 app.blueprint(stable_diffusion_bp)
 app.blueprint(moss_bp)
 
