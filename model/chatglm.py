@@ -1,6 +1,8 @@
 from transformers import AutoTokenizer, AutoModel
 import torch
-from src import load_pretrained, ModelArguments
+import sys
+sys.path.append("src")
+from peft import PeftModel
 
 DEVICE = "cuda"
 DEVICE_ID = "0"
@@ -34,11 +36,10 @@ class chatGLM_6B():
 
 class chatglm_lora():
     def __init__(self):
-        path_to_checkpoint = "/root/model/chatglm/model/dw_chat"
-        model_args = ModelArguments(checkpoint_dir=path_to_checkpoint)
-        model, tokenizer = load_pretrained(model_args)     
+        self.tokenizer = AutoTokenizer.from_pretrained("/root/model/chatglm-6b", trust_remote_code=True, local_files_only=True)
+        model = AutoModel.from_pretrained("/root/model/chatglm-6b", trust_remote_code=True, local_files_only=True).half().cuda()
+        model = PeftModel.from_pretrained(model, "./chatglm-lora/")
         self.model = model.half().cuda()
-        self.tokenizer = tokenizer
 
     def __call__(self, prompt,history):
         response, history = self.model.chat(self.tokenizer,
