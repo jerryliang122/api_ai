@@ -38,7 +38,7 @@ class chatglm_lora():
     def __init__(self):
         self.tokenizer = AutoTokenizer.from_pretrained("/root/model/chatglm-6b", trust_remote_code=True, local_files_only=True)
         model = AutoModel.from_pretrained("/root/model/chatglm-6b", trust_remote_code=True, local_files_only=True).half().cuda()
-        model = PeftModel.from_pretrained(model, "./chatglm-lora/")
+        #model = PeftModel.from_pretrained(model, "/root/model/chatglm-lora/")
         self.model = model.half().cuda()
 
     def __call__(self, prompt,history):

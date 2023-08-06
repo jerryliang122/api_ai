@@ -7,7 +7,7 @@ import asyncio
 from model.chatglm import chatglm_lora
 
 
-chatglm_l = Blueprint('chatglm_l', url_prefix='/chatglm_l')
+chatglm_l = Blueprint('chatglm_l', url_prefix='/')
 
 # 全局变量，用于记录上次访问模型的时间
 last_access_time = None
@@ -30,6 +30,7 @@ async def timer():
         time_since_last_access = (datetime.datetime.now() - last_access_time).total_seconds()
         # 如果超过了指定的时间间隔，则关闭模型
         if time_since_last_access > TIMEOUT:
+            break
             # 释放 GPU 显存
             del model
             # 清空全局变量
