@@ -1,48 +1,32 @@
-from transformers import AutoTokenizer, AutoModel
+from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+from transformers.generation import GenerationConfig
 import torch
-import sys
-from config import (
-    ModelCard,
-    ChatMessage,
-    ModelList,
-    ChatCompletionRequest,
-    ChatCompletionResponseChoice,
-    DeltaMessage,
-    ChatCompletionResponseStreamChoice,
-    ChatCompletionResponse,
-)
-import time
-
-sys.path.append("src")
-from peft import PeftModel
+from config import *
 
 DEVICE = "cuda"
 DEVICE_ID = "0"
 CUDA_DEVICE = f"{DEVICE}:{DEVICE_ID}" if DEVICE_ID else DEVICE
 
 
-class chatGLM2_6B:
+class Qwen_7B:
     def __init__(self):
+        quantization_config = BitsAndBytesConfig(load_in_8bit=True)
         self.tokenizer = AutoTokenizer.from_pretrained(
-            "/root/model/chatglm2-6b-32k", trust_remote_code=True, local_files_only=True
+            "/root/model/Qwen-7B-Chat", trust_remote_code=True, local_files_only=True
         )
-        model = (
-            AutoModel.from_pretrained("/root/model/chatglm2-6b-32k", trust_remote_code=True, local_files_only=True)
-            .half()
-            .cuda()
+        self.model = AutoModelForCausalLM.from_pretrained(
+            "Qwen/Qwen-7B-Chat",
+            device_map="auto",
+            trust_remote_code=True,
+            local_files_only=True,
+            quantization_config=quantization_config,
         )
-        self.model = PeftModel.from_pretrained(model, "./chatglm2-lora/")
 
     def chat(self, prompt, history, lora):
         if lora:
-            response, history = self.model.chat(
-                self.tokenizer, prompt, history=history, max_length=32000, top_p=0.7, temperature=0.95
-            )
+            response, history = self.model.chat(self.tokenizer, prompt, history=history)
         else:
-            with self.model.disable_adapter():
-                response, history = self.model.chat(
-                    self.tokenizer, prompt, history=history, max_length=32000, top_p=0.7, temperature=0.95
-                )
+            response, history = self.model.chat(self.tokenizer, prompt, history=history)
         # 回收显存
         if torch.cuda.is_available():
             with torch.cuda.device(CUDA_DEVICE):
@@ -72,21 +56,18 @@ class chatGLM2_6B:
                 chunk = ChatCompletionResponse(model=model_id, choices=[choice_data], object="chat.completion.chunk")
                 yield "{}".format(chunk.json(exclude_unset=True, ensure_ascii=False))
         else:
-            with self.model.disable_adapter():
-                for new_response, _ in self.model.stream_chat(self.tokenizer, prompt, history):
-                    if len(new_response) == current_length:
-                        continue
+            for new_response, _ in self.model.stream_chat(self.tokenizer, prompt, history):
+                if len(new_response) == current_length:
+                    continue
 
-                    new_text = new_response[current_length:]
-                    current_length = len(new_response)
+                new_text = new_response[current_length:]
+                current_length = len(new_response)
 
-                    choice_data = ChatCompletionResponseStreamChoice(
-                        index=0, delta=DeltaMessage(content=new_text), finish_reason=None
-                    )
-                    chunk = ChatCompletionResponse(
-                        model=model_id, choices=[choice_data], object="chat.completion.chunk"
-                    )
-                    yield "{}".format(chunk.json(exclude_unset=True, ensure_ascii=False))
+                choice_data = ChatCompletionResponseStreamChoice(
+                    index=0, delta=DeltaMessage(content=new_text), finish_reason=None
+                )
+                chunk = ChatCompletionResponse(model=model_id, choices=[choice_data], object="chat.completion.chunk")
+                yield "{}".format(chunk.json(exclude_unset=True, ensure_ascii=False))
 
         choice_data = ChatCompletionResponseStreamChoice(index=0, delta=DeltaMessage(), finish_reason="stop")
         chunk = ChatCompletionResponse(model=model_id, choices=[choice_data], object="chat.completion.chunk")

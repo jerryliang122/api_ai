@@ -17,9 +17,10 @@ from config import (
     ChatCompletionResponseStreamChoice,
     ChatCompletionResponse,
 )
+from model.qwen import Qwen_7B
 
 TIMEOUT = 300
-model_lists = ["chatglm2-6b", "chatglm2-6b-lora"]
+model_lists = ["chatglm2-6b", "chatglm2-6b-lora", "qwen-7b"]
 loading = None
 last_access_time = None
 
@@ -38,6 +39,10 @@ async def load_model(model_name):
         model = chatGLM2_6B()
         loading = model_name
         lora = True
+    elif model_name == model_lists[2]:
+        model = Qwen_7B()
+        loading = model_name
+        lora = False
 
     # 进入循环，等待下一次访问
     while not stop_event.is_set():
