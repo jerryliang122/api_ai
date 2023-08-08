@@ -18,8 +18,9 @@ from config import (
     ChatCompletionResponse,
 )
 from model.qwen import Qwen_7B
+import torch
 
-TIMEOUT = 300
+TIMEOUT = 60
 model_lists = ["chatglm2-6b", "chatglm2-6b-lora", "qwen-7b"]
 loading = None
 last_access_time = None
@@ -46,8 +47,6 @@ async def load_model(model_name):
 
     # 进入循环，等待下一次访问
     while not stop_event.is_set():
-        if last_access_time == None:
-            break
         # 计算当前时间和上次访问时间的差值
         time_since_last_access = (datetime.datetime.now() - last_access_time).total_seconds()
         # 如果超过了指定的时间间隔，则关闭模型
@@ -56,7 +55,8 @@ async def load_model(model_name):
             del model
             # 清空全局变量
             model = None
-            loading = False
+            loading = None
+            torch.cuda.empty_cache()
             break
         # 每隔一段时间检查一次
         await asyncio.sleep(5)
@@ -84,14 +84,16 @@ async def list_models():
 @app.post("/v1/chat/completions", response_model=ChatCompletionResponse)
 async def create_chat_completion(request: ChatCompletionRequest):
     global model, last_access_time
-
+    last_access_time = datetime.datetime.now()
     if request.messages[-1].role != "user":
         raise HTTPException(status_code=400, detail="Invalid request")
     if loading == None:
         # 阻塞模式下加载模型
-        await asyncio.create_task(load_model(request.model))
+        asyncio.create_task(load_model(request.model))
     elif request.model != loading:
         raise HTTPException(status_code=400, detail=f"Model not loaded,Waiting for release: {time_since_last_access}")
+    while not loading:
+        await asyncio.sleep(1)
     query = request.messages[-1].content
 
     prev_messages = request.messages[:-1]
@@ -113,7 +115,6 @@ async def create_chat_completion(request: ChatCompletionRequest):
     choice_data = ChatCompletionResponseChoice(
         index=0, message=ChatMessage(role="assistant", content=response), finish_reason="stop"
     )
-    last_access_time = datetime.datetime.now()
     return ChatCompletionResponse(model=request.model, choices=[choice_data], object="chat.completion")
 
 
