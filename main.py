@@ -16,11 +16,13 @@ from config import (
     DeltaMessage,
     ChatCompletionResponseStreamChoice,
     ChatCompletionResponse,
+    ChatRequest,
+    ChatResponse,
 )
 from model.qwen import Qwen_7B
 import torch
 
-TIMEOUT = 60
+TIMEOUT = 120
 model_lists = ["chatglm2-6b", "chatglm2-6b-lora", "qwen-7b"]
 loading = None
 last_access_time = None
@@ -116,6 +118,44 @@ async def create_chat_completion(request: ChatCompletionRequest):
         index=0, message=ChatMessage(role="assistant", content=response), finish_reason="stop"
     )
     return ChatCompletionResponse(model=request.model, choices=[choice_data], object="chat.completion")
+
+
+@app.post("/chatglm", response_model=ChatResponse)
+async def create_chat_completion(request: ChatRequest):
+    global model, last_access_time
+    last_access_time = datetime.datetime.now()
+    if loading == None:
+        # 阻塞模式下加载模型
+        asyncio.create_task(load_model("chatglm2-6b"))
+    elif "chatglm2-6b" != loading:
+        return ChatResponse(
+            response=f"Model not loaded,Waiting for release: {time_since_last_access}", status=200, history=[]
+        )
+    while not loading:
+        await asyncio.sleep(1)
+    query = request.prompt
+    history = request.history
+    response, history = model.chat(query, history=history, lora=False)
+    return ChatResponse(response=response, status=200, history=history)
+
+
+@app.post("/chatglm_lora", response_model=ChatResponse)
+async def create_chat_completion(request: ChatRequest):
+    global model, last_access_time
+    last_access_time = datetime.datetime.now()
+    if loading == None:
+        # 阻塞模式下加载模型
+        asyncio.create_task(load_model("chatglm2-6b-lora"))
+    elif "chatglm2-6b-lora" != loading:
+        return ChatResponse(
+            response=f"Model not loaded,Waiting for release: {time_since_last_access}", status=200, history=[]
+        )
+    while not loading:
+        await asyncio.sleep(1)
+    query = request.prompt
+    history = request.history
+    response, history = model.chat(query, history=history, lora=False)
+    return ChatResponse(response=response, status=200, history=history)
 
 
 if __name__ == "__main__":

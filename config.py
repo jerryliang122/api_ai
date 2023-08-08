@@ -54,3 +54,14 @@ class ChatCompletionResponse(BaseModel):
     object: Literal["chat.completion", "chat.completion.chunk"]
     choices: List[Union[ChatCompletionResponseChoice, ChatCompletionResponseStreamChoice]]
     created: Optional[int] = Field(default_factory=lambda: int(time.time()))
+
+
+class ChatRequest(BaseModel):
+    prompt: str
+    history: List[str] = []
+
+
+class ChatResponse(BaseModel):
+    response: str
+    history: List[List[str]]
+    status: int

@@ -43,7 +43,7 @@ class Qwen_7B:
 
         current_length = 0
         if lora:
-            for new_response, _ in self.model.stream_chat(self.tokenizer, prompt, history):
+            for new_response, _ in self.model.chat_stream(self.tokenizer, prompt, history):
                 if len(new_response) == current_length:
                     continue
 
@@ -56,7 +56,7 @@ class Qwen_7B:
                 chunk = ChatCompletionResponse(model=model_id, choices=[choice_data], object="chat.completion.chunk")
                 yield "{}".format(chunk.json(exclude_unset=True, ensure_ascii=False))
         else:
-            for new_response, _ in self.model.stream_chat(self.tokenizer, prompt, history):
+            for new_response, _ in self.model.chat_stream(self.tokenizer, prompt, history):
                 if len(new_response) == current_length:
                     continue
 
