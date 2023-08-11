@@ -15,11 +15,14 @@ class Qwen_7B:
             "/root/model/Qwen-7B-Chat", trust_remote_code=True, local_files_only=True
         )
         self.model = AutoModelForCausalLM.from_pretrained(
-            "Qwen/Qwen-7B-Chat",
+            "/root/model/Qwen-7B-Chat",
             device_map="auto",
             trust_remote_code=True,
             local_files_only=True,
             quantization_config=quantization_config,
+        ).eval()
+        self.model.generation_config = GenerationConfig.from_pretrained(
+            "/root/model/Qwen-7B-Chat", trust_remote_code=True, local_files_only=True
         )
 
     def chat(self, prompt, history, lora):

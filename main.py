@@ -173,7 +173,12 @@ async def create_chat_completion(request: ChatRequest):
         await asyncio.sleep(1)
     query = request.prompt
     history = request.history
+    if history:
+        history = [tuple(sublist) for sublist in history]
+    else:
+        history = None
     response, history = model.chat(query, history=history, lora=False)
+    history = [list(sublist) for sublist in history]
     return ChatResponse(response=response, status=200, history=history)
 
 
