@@ -58,7 +58,7 @@ class ChatCompletionResponse(BaseModel):
 
 class ChatRequest(BaseModel):
     prompt: str
-    history: List[str] = []
+    history: List[List[str]]
 
 
 class ChatResponse(BaseModel):
