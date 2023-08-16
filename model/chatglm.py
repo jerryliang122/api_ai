@@ -33,15 +33,15 @@ class chatGLM2_6B:
         )
         self.model = PeftModel.from_pretrained(model, "./chatglm2-lora/")
 
-    def chat(self, prompt, history, lora):
+    def chat(self, prompt, history, lora, temperature):
         if lora:
             response, history = self.model.chat(
-                self.tokenizer, prompt, history=history, max_length=32000, top_p=0.7, temperature=0.95
+                self.tokenizer, prompt, history=history, max_length=32000, top_p=0.7, temperature=temperature
             )
         else:
             with self.model.disable_adapter():
                 response, history = self.model.chat(
-                    self.tokenizer, prompt, history=history, max_length=32000, top_p=0.7, temperature=0.95
+                    self.tokenizer, prompt, history=history, max_length=32000, temperature=temperature
                 )
         # 回收显存
         if torch.cuda.is_available():
@@ -50,7 +50,7 @@ class chatGLM2_6B:
                 torch.cuda.ipc_collect()
         return response, history
 
-    async def stream_chat(self, prompt, history, lora, model_id):
+    async def stream_chat(self, prompt, history, lora, model_id, temperature):
         choice_data = ChatCompletionResponseStreamChoice(
             index=0, delta=DeltaMessage(role="assistant"), finish_reason=None
         )
@@ -59,7 +59,7 @@ class chatGLM2_6B:
 
         current_length = 0
         if lora:
-            for new_response, _ in self.model.stream_chat(self.tokenizer, prompt, history):
+            for new_response, _ in self.model.stream_chat(self.tokenizer, prompt, history, temperature=temperature):
                 if len(new_response) == current_length:
                     continue
 
@@ -73,7 +73,7 @@ class chatGLM2_6B:
                 yield "{}".format(chunk.json(exclude_unset=True, ensure_ascii=False))
         else:
             with self.model.disable_adapter():
-                for new_response, _ in self.model.stream_chat(self.tokenizer, prompt, history):
+                for new_response, _ in self.model.stream_chat(self.tokenizer, prompt, history, temperature=temperature):
                     if len(new_response) == current_length:
                         continue
 

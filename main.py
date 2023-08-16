@@ -109,11 +109,11 @@ async def create_chat_completion(request: ChatCompletionRequest):
                 history.append([prev_messages[i].content, prev_messages[i + 1].content])
     # 流式传输
     if request.stream:
-        generate = model.stream_chat(query, history, lora=lora, model_id=request.model)
+        generate = model.stream_chat(query, history, lora=lora, model_id=request.model, temperature=request.temperature)
         last_access_time = datetime.datetime.now()
         return EventSourceResponse(generate, media_type="text/event-stream")
 
-    response, _ = model.chat(query, history=history, lora=lora)
+    response, _ = model.chat(query, history=history, lora=lora, temperature=request.temperature)
     choice_data = ChatCompletionResponseChoice(
         index=0, message=ChatMessage(role="assistant", content=response), finish_reason="stop"
     )
@@ -135,7 +135,7 @@ async def create_chat_completion(request: ChatRequest):
         await asyncio.sleep(1)
     query = request.prompt
     history = request.history
-    response, history = model.chat(query, history=history, lora=False)
+    response, history = model.chat(query, history=history, lora=False, temperature=request.temperature)
     return ChatResponse(response=response, status=200, history=history)
 
 
@@ -154,7 +154,7 @@ async def create_chat_completion(request: ChatRequest):
         await asyncio.sleep(1)
     query = request.prompt
     history = request.history
-    response, history = model.chat(query, history=history, lora=False)
+    response, history = model.chat(query, history=history, lora=False, temperature=request.temperature)
     return ChatResponse(response=response, status=200, history=history)
 
 

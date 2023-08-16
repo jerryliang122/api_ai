@@ -25,7 +25,7 @@ class Qwen_7B:
             "/root/model/Qwen-7B-Chat", trust_remote_code=True, local_files_only=True
         )
 
-    def chat(self, prompt, history, lora):
+    def chat(self, prompt, history, lora, temperature):
         if lora:
             response, history = self.model.chat(self.tokenizer, prompt, history=history)
         else:
@@ -37,7 +37,7 @@ class Qwen_7B:
                 torch.cuda.ipc_collect()
         return response, history
 
-    async def stream_chat(self, prompt, history, lora, model_id):
+    async def stream_chat(self, prompt, history, lora, model_id, temperature):
         choice_data = ChatCompletionResponseStreamChoice(
             index=0, delta=DeltaMessage(role="assistant"), finish_reason=None
         )

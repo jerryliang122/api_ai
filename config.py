@@ -26,7 +26,7 @@ class ModelList(BaseModel):
 class ChatCompletionRequest(BaseModel):
     model: str
     messages: List[ChatMessage]
-    temperature: Optional[float] = None
+    temperature: Optional[float] = 0.95
     top_p: Optional[float] = None
     max_length: Optional[int] = None
     stream: Optional[bool] = False
@@ -58,6 +58,7 @@ class ChatCompletionResponse(BaseModel):
 
 class ChatRequest(BaseModel):
     prompt: str
+    temperature: Optional[float] = 0.95
     history: List[List[str]]
 
 
