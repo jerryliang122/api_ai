@@ -26,10 +26,7 @@ class Qwen_7B:
         )
 
     def chat(self, prompt, history, lora, temperature):
-        if lora:
-            response, history = self.model.chat(self.tokenizer, prompt, history=history)
-        else:
-            response, history = self.model.chat(self.tokenizer, prompt, history=history)
+        response, history = self.model.chat(self.tokenizer, prompt, history=history)
         # 回收显存
         if torch.cuda.is_available():
             with torch.cuda.device(CUDA_DEVICE):
@@ -45,33 +42,18 @@ class Qwen_7B:
         yield "{}".format(chunk.json(exclude_unset=True, ensure_ascii=False))
 
         current_length = 0
-        if lora:
-            for new_response, _ in self.model.chat_stream(self.tokenizer, prompt, history):
-                if len(new_response) == current_length:
-                    continue
+        for new_response, _ in self.model.chat_stream(self.tokenizer, prompt, history):
+            if len(new_response) == current_length:
+                continue
 
-                new_text = new_response[current_length:]
-                current_length = len(new_response)
+            new_text = new_response[current_length:]
+            current_length = len(new_response)
 
-                choice_data = ChatCompletionResponseStreamChoice(
-                    index=0, delta=DeltaMessage(content=new_text), finish_reason=None
-                )
-                chunk = ChatCompletionResponse(model=model_id, choices=[choice_data], object="chat.completion.chunk")
-                yield "{}".format(chunk.json(exclude_unset=True, ensure_ascii=False))
-        else:
-            for new_response, _ in self.model.chat_stream(self.tokenizer, prompt, history):
-                if len(new_response) == current_length:
-                    continue
-
-                new_text = new_response[current_length:]
-                current_length = len(new_response)
-
-                choice_data = ChatCompletionResponseStreamChoice(
-                    index=0, delta=DeltaMessage(content=new_text), finish_reason=None
-                )
-                chunk = ChatCompletionResponse(model=model_id, choices=[choice_data], object="chat.completion.chunk")
-                yield "{}".format(chunk.json(exclude_unset=True, ensure_ascii=False))
-
+            choice_data = ChatCompletionResponseStreamChoice(
+                index=0, delta=DeltaMessage(content=new_text), finish_reason=None
+            )
+            chunk = ChatCompletionResponse(model=model_id, choices=[choice_data], object="chat.completion.chunk")
+            yield "{}".format(chunk.json(exclude_unset=True, ensure_ascii=False))
         choice_data = ChatCompletionResponseStreamChoice(index=0, delta=DeltaMessage(), finish_reason="stop")
         chunk = ChatCompletionResponse(model=model_id, choices=[choice_data], object="chat.completion.chunk")
         yield "{}".format(chunk.json(exclude_unset=True, ensure_ascii=False))

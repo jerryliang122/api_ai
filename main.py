@@ -89,7 +89,7 @@ async def create_chat_completion(request: ChatCompletionRequest):
     last_access_time = datetime.datetime.now()
     if request.messages[-1].role != "user":
         raise HTTPException(status_code=400, detail="Invalid request")
-    if loading == None:
+    if loading is None:
         # 阻塞模式下加载模型
         asyncio.create_task(load_model(request.model))
     elif request.model != loading:
@@ -104,9 +104,12 @@ async def create_chat_completion(request: ChatCompletionRequest):
 
     history = []
     if len(prev_messages) % 2 == 0:
-        for i in range(0, len(prev_messages), 2):
-            if prev_messages[i].role == "user" and prev_messages[i + 1].role == "assistant":
-                history.append([prev_messages[i].content, prev_messages[i + 1].content])
+        history.extend(
+            [prev_messages[i].content, prev_messages[i + 1].content]
+            for i in range(0, len(prev_messages), 2)
+            if prev_messages[i].role == "user"
+            and prev_messages[i + 1].role == "assistant"
+        )
     # 流式传输
     if request.stream:
         generate = model.stream_chat(query, history, lora=lora, model_id=request.model, temperature=request.temperature)
@@ -124,10 +127,10 @@ async def create_chat_completion(request: ChatCompletionRequest):
 async def create_chat_completion(request: ChatRequest):
     global model, last_access_time
     last_access_time = datetime.datetime.now()
-    if loading == None:
+    if loading is None:
         # 阻塞模式下加载模型
         asyncio.create_task(load_model("chatglm2-6b"))
-    elif "chatglm2-6b" != loading:
+    elif loading != "chatglm2-6b":
         return ChatResponse(
             response=f"Model not loaded,Waiting for release: {time_since_last_access}", status=200, history=[]
         )
@@ -143,10 +146,10 @@ async def create_chat_completion(request: ChatRequest):
 async def create_chat_completion(request: ChatRequest):
     global model, last_access_time
     last_access_time = datetime.datetime.now()
-    if loading == None:
+    if loading is None:
         # 阻塞模式下加载模型
         asyncio.create_task(load_model("chatglm2-6b-lora"))
-    elif "chatglm2-6b-lora" != loading:
+    elif loading != "chatglm2-6b-lora":
         return ChatResponse(
             response=f"Model not loaded,Waiting for release: {time_since_last_access}", status=200, history=[]
         )
@@ -162,10 +165,12 @@ async def create_chat_completion(request: ChatRequest):
 async def create_chat_completion(request: ChatRequest):
     global model, last_access_time
     last_access_time = datetime.datetime.now()
-    if loading == None:
+    if loading == "qwen-7b":
+        pass
+    elif loading is None:
         # 阻塞模式下加载模型
         asyncio.create_task(load_model("qwen-7b"))
-    elif "qwen-7b" != loading:
+    else:
         return ChatResponse(
             response=f"Model not loaded,Waiting for release: {time_since_last_access}", status=200, history=[]
         )
@@ -173,10 +178,7 @@ async def create_chat_completion(request: ChatRequest):
         await asyncio.sleep(1)
     query = request.prompt
     history = request.history
-    if history:
-        history = [tuple(sublist) for sublist in history]
-    else:
-        history = None
+    history = [tuple(sublist) for sublist in history] if history else None
     response, history = model.chat(query, history=history, lora=False)
     history = [list(sublist) for sublist in history]
     return ChatResponse(response=response, status=200, history=history)
