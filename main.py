@@ -23,7 +23,7 @@ from model.qwen import Qwen_7B
 import torch
 
 TIMEOUT = 120
-model_lists = ["chatglm2-6b", "chatglm2-6b-lora", "qwen-7b"]
+model_lists = ["chatglm2-6b", "chatglm2-6b-lora", "qwen-7b", "qwen-7b-lora"]
 loading = None
 last_access_time = None
 
@@ -46,6 +46,10 @@ async def load_model(model_name):
         model = Qwen_7B()
         loading = model_name
         lora = False
+    elif model_name == model_lists[3]:
+        model = Qwen_7B()
+        loading = model_name
+        lora = True
 
     # 进入循环，等待下一次访问
     while not stop_event.is_set():
@@ -165,6 +169,30 @@ async def create_chat_completion(request: ChatRequest):
     if loading == None:
         # 阻塞模式下加载模型
         asyncio.create_task(load_model("qwen-7b"))
+    elif "qwen-7b" != loading:
+        return ChatResponse(
+            response=f"Model not loaded,Waiting for release: {time_since_last_access}", status=200, history=[]
+        )
+    while not loading:
+        await asyncio.sleep(1)
+    query = request.prompt
+    history = request.history
+    if history:
+        history = [tuple(sublist) for sublist in history]
+    else:
+        history = None
+    response, history = model.chat(query, history=history, lora=False)
+    history = [list(sublist) for sublist in history]
+    return ChatResponse(response=response, status=200, history=history)
+
+
+@app.post("/qwen-lora", response_model=ChatResponse)
+async def create_chat_completion(request: ChatRequest):
+    global model, last_access_time
+    last_access_time = datetime.datetime.now()
+    if loading == None:
+        # 阻塞模式下加载模型
+        asyncio.create_task(load_model("qwen-7b-lora"))
     elif "qwen-7b" != loading:
         return ChatResponse(
             response=f"Model not loaded,Waiting for release: {time_since_last_access}", status=200, history=[]
