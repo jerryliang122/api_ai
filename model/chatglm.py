@@ -94,8 +94,12 @@ class chatGLM2_6B:
         yield "[DONE]"
 
     def __del__(self):
+        import gc
+
         del self.model
+        del self.tokenizer
         self.model = None
         self.tokenizer = None
         torch.cuda.empty_cache()
         torch.cuda.ipc_collect()
+        gc.collect()

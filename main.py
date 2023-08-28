@@ -21,6 +21,7 @@ from config import (
 )
 from model.qwen import Qwen_7B
 import torch
+import gc
 
 TIMEOUT = 120
 model_lists = ["chatglm2-6b", "chatglm2-6b-lora", "qwen-7b", "qwen-7b-lora"]
@@ -63,6 +64,8 @@ async def load_model(model_name):
             model = None
             loading = None
             torch.cuda.empty_cache()
+            gc.collect()
+            print("Model released")
             break
         # 每隔一段时间检查一次
         await asyncio.sleep(5)
@@ -90,18 +93,20 @@ async def list_models():
 @app.post("/v1/chat/completions", response_model=ChatCompletionResponse)
 async def create_chat_completion(request: ChatCompletionRequest):
     global model, last_access_time
-    last_access_time = datetime.datetime.now()
+
     if request.messages[-1].role != "user":
         raise HTTPException(status_code=400, detail="Invalid request")
     if loading == None:
         # 阻塞模式下加载模型
+        last_access_time = datetime.datetime.now()
         asyncio.create_task(load_model(request.model))
     elif request.model != loading:
-        raise HTTPException(status_code=400, detail=f"Model not loaded,Waiting for release: {time_since_last_access}")
+        time_release = TIMEOUT - time_since_last_access
+        raise HTTPException(status_code=400, detail=f"Model not loaded,Waiting for release: {time_release}")
     while not loading:
         await asyncio.sleep(1)
     query = request.messages[-1].content
-
+    last_access_time = datetime.datetime.now()
     prev_messages = request.messages[:-1]
     if len(prev_messages) > 0 and prev_messages[0].role == "system":
         query1 = prev_messages.pop(0).content + query
@@ -127,61 +132,60 @@ async def create_chat_completion(request: ChatCompletionRequest):
 @app.post("/chatglm", response_model=ChatResponse)
 async def create_chat_completion(request: ChatRequest):
     global model, last_access_time
-    last_access_time = datetime.datetime.now()
     if loading == None:
         # 阻塞模式下加载模型
         asyncio.create_task(load_model("chatglm2-6b"))
     elif "chatglm2-6b" != loading:
-        return ChatResponse(
-            response=f"Model not loaded,Waiting for release: {time_since_last_access}", status=200, history=[]
-        )
+        time_release = TIMEOUT - time_since_last_access
+        return ChatResponse(response=f"Model not loaded,Waiting for release: {time_release}", status=200, history=[])
     while not loading:
         await asyncio.sleep(1)
+    last_access_time = datetime.datetime.now()
     query = request.prompt
     history = request.history
-    response, history = model.chat(query, history=history, lora=False, temperature=request.temperature)
+    response, history = model.chat(query, history=history, lora=lora, temperature=request.temperature)
     return ChatResponse(response=response, status=200, history=history)
 
 
 @app.post("/chatglm_lora", response_model=ChatResponse)
 async def create_chat_completion(request: ChatRequest):
     global model, last_access_time
-    last_access_time = datetime.datetime.now()
     if loading == None:
         # 阻塞模式下加载模型
+        last_access_time = datetime.datetime.now()
         asyncio.create_task(load_model("chatglm2-6b-lora"))
     elif "chatglm2-6b-lora" != loading:
-        return ChatResponse(
-            response=f"Model not loaded,Waiting for release: {time_since_last_access}", status=200, history=[]
-        )
+        time_release = TIMEOUT - time_since_last_access
+        return ChatResponse(response=f"Model not loaded,Waiting for release: {time_release}", status=200, history=[])
     while not loading:
         await asyncio.sleep(1)
     query = request.prompt
+    last_access_time = datetime.datetime.now()
     history = request.history
-    response, history = model.chat(query, history=history, lora=False, temperature=request.temperature)
+    response, history = model.chat(query, history=history, lora=lora, temperature=request.temperature)
     return ChatResponse(response=response, status=200, history=history)
 
 
 @app.post("/qwen", response_model=ChatResponse)
 async def create_chat_completion(request: ChatRequest):
     global model, last_access_time
-    last_access_time = datetime.datetime.now()
     if loading == None:
         # 阻塞模式下加载模型
+        last_access_time = datetime.datetime.now()
         asyncio.create_task(load_model("qwen-7b"))
     elif "qwen-7b" != loading:
-        return ChatResponse(
-            response=f"Model not loaded,Waiting for release: {time_since_last_access}", status=200, history=[]
-        )
+        time_release = TIMEOUT - time_since_last_access
+        return ChatResponse(response=f"Model not loaded,Waiting for release: {time_release}", status=200, history=[])
     while not loading:
         await asyncio.sleep(1)
     query = request.prompt
+    last_access_time = datetime.datetime.now()
     history = request.history
     if history:
         history = [tuple(sublist) for sublist in history]
     else:
         history = None
-    response, history = model.chat(query, history=history, lora=False)
+    response, history = model.chat(query, history=history, lora=lora, temperature=request.temperature)
     history = [list(sublist) for sublist in history]
     return ChatResponse(response=response, status=200, history=history)
 
@@ -189,23 +193,23 @@ async def create_chat_completion(request: ChatRequest):
 @app.post("/qwen-lora", response_model=ChatResponse)
 async def create_chat_completion(request: ChatRequest):
     global model, last_access_time
-    last_access_time = datetime.datetime.now()
     if loading == None:
         # 阻塞模式下加载模型
+        last_access_time = datetime.datetime.now()
         asyncio.create_task(load_model("qwen-7b-lora"))
-    elif "qwen-7b" != loading:
-        return ChatResponse(
-            response=f"Model not loaded,Waiting for release: {time_since_last_access}", status=200, history=[]
-        )
+    elif "qwen-7b-lora" != loading:
+        time_release = TIMEOUT - time_since_last_access
+        return ChatResponse(response=f"Model not loaded,Waiting for release: {time_release}", status=200, history=[])
     while not loading:
         await asyncio.sleep(1)
     query = request.prompt
+    last_access_time = datetime.datetime.now()
     history = request.history
     if history:
         history = [tuple(sublist) for sublist in history]
     else:
         history = None
-    response, history = model.chat(query, history=history, lora=False)
+    response, history = model.chat(query, history=history, lora=lora, temperature=request.temperature)
     history = [list(sublist) for sublist in history]
     return ChatResponse(response=response, status=200, history=history)
 
