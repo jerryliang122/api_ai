@@ -39,7 +39,7 @@ jobs:
         # 构建镜像, 并打 tag
         - name: Build docker image
           run: |
-            sudo cd ${{ github.workspace }}
+            cd ${{ github.workspace }}
             sudo docker buildx build --platform linux/amd64 -t ccr.ccs.tencentyun.com/jerryliang/chatglm2:latest . 
           
 
