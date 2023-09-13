@@ -37,14 +37,9 @@ jobs:
 
         # 登录 docker hub
         - name: Login to DockerHub
-          uses: docker/login-action@master
-          with:
-            # GitHub Repo => Settings => Secrets 增加 docker hub 登录密钥信息
-            # DOCKERHUB_USERNAME 是 docker hub 账号名.
-            # DOCKERHUB_TOKEN: docker hub => Account Setting => Security 创建.
-            registry: ccr.ccs.tencentyun.com
-            username: ${{ secrets.DOCKERHUB_USERNAME }}
-            password: ${{ secrets.DOCKERHUB_TOKEN }}
+          run: |
+            docker login ccr.ccs.tencentyun.com --username=${{ secrets.DOCKERHUB_USERNAME }} --password=${{ secrets.DOCKERHUB_TOKEN }}
+            
         # 构建镜像, 并打 tag
         - name: Build and push
           uses: docker/build-push-action@v5
