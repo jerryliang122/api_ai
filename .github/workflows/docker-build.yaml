@@ -53,5 +53,6 @@ jobs:
 
         - name: push image
           run: |
+            docker image ls
             docker tag jerryliang/chatglm2:last ccr.ccs.tencentyun.com/jerryliang/chatglm2:last
             docker push ccr.ccs.tencentyun.com/jerryliang/chatglm2:last
