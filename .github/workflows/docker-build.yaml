@@ -45,5 +45,4 @@ jobs:
         - name: push to tencentyun
           run: |
             sudo docker login ccr.ccs.tencentyun.com --username=${{ secrets.DOCKERHUB_USERNAME }} --password=${{ secrets.DOCKERHUB_TOKEN }}
-            sudo docker tag jerryliang/chatglm2:latest ccr.ccs.tencentyun.com/jerryliang/chatglm2:latest
             sudo docker push ccr.ccs.tencentyun.com/jerryliang/chatglm2:latest
