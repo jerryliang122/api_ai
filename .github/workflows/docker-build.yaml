@@ -40,7 +40,7 @@ jobs:
         - name: Login to Tencent docker
           uses: docker/login-action@v3
           with:
-            registry: ccr.ccs.tencentyun.com
+            registry: hkccr.ccs.tencentyun.com
             username: ${{ secrets.DOCKERHUB_USERNAME }}
             password: ${{ secrets.DOCKERHUB_TOKEN }}
 
@@ -48,11 +48,7 @@ jobs:
         - name: Build docker image
           uses: docker/build-push-action@v3
           with:
-            push: false
-            tags: jerryliang/chatglm2:last
+            push: true
+            tags: hkccr.ccs.tencentyun.com/jerryliang/chatglm2:last
 
-        - name: push image
-          run: |
-            docker image ls
-            docker tag jerryliang/chatglm2:last ccr.ccs.tencentyun.com/jerryliang/chatglm2:last
-            docker push ccr.ccs.tencentyun.com/jerryliang/chatglm2:last
+        
