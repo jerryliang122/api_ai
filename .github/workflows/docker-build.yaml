@@ -48,5 +48,10 @@ jobs:
         - name: Build docker image
           uses: docker/build-push-action@v3
           with:
-            push: true
+            push: false
             tags: jerryliang/chatglm2:last
+
+        - name: push image
+          run: |
+            docker tag jerryliang/chatglm2:last ccr.ccs.tencentyun.com/jerryliang/chatglm2:last
+            docker push ccr.ccs.tencentyun.com/jerryliang/chatglm2:last
