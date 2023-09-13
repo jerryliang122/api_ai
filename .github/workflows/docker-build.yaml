@@ -6,6 +6,10 @@ on:
 jobs:
     hk:
         runs-on: ubuntu-latest
+        defaults:
+            run:
+                shell: bash
+                working-directory: ${{ github.workspace }}
         steps:
         - name: Free Disk Space (Ubuntu)
           uses: jlumbroso/free-disk-space@main
@@ -28,9 +32,9 @@ jobs:
 
         - name: clone chatglm2-6b-32K
           run: |
-            sudo apt-get update && sudo apt-get install git-lfs -y
-            git lfs install
-            cd ${{ github.workspace }} && git clone https://huggingface.co/THUDM/chatglm2-6b-32k
+            git clone https://huggingface.co/THUDM/chatglm2-6b-32k
+            ls
+            
         # 设置 QEMU, 后面 docker buildx 依赖此.
         - name: Set up QEMU
           uses: docker/setup-qemu-action@v2
@@ -52,10 +56,15 @@ jobs:
           uses: docker/build-push-action@v3
           with:
             push: true
+            context: . 
             tags: hkccr.ccs.tencentyun.com/jerryliang/chatglm2:last
 
     gd:
       runs-on: ubuntu-latest
+      defaults:
+        run:
+            shell: bash
+            working-directory: ${{ github.workspace }}
       steps:
       - name: Free Disk Space (Ubuntu)
         uses: jlumbroso/free-disk-space@main
@@ -79,9 +88,8 @@ jobs:
 
       - name: clone chatglm2-6b-32K
         run: |
-          sudo apt-get update && sudo apt-get install git-lfs -y
-          git lfs install
-          cd ${{ github.workspace }} && git clone https://huggingface.co/THUDM/chatglm2-6b-32k
+          git clone https://huggingface.co/THUDM/chatglm2-6b-32k
+          ls
       # 设置 QEMU, 后面 docker buildx 依赖此.
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -103,5 +111,6 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
+          context: .
           tags: ccr.ccs.tencentyun.com/jerryliang/chatglm2:last
  
