@@ -22,7 +22,7 @@ jobs:
             large-packages: true
             docker-images: false
             swap-storage: true   
-             
+
         - name: clone chatglm2-6b-32K
           run: |
             sudo apt-get update && sudo apt-get install git-lfs -y
@@ -38,11 +38,8 @@ jobs:
 
         # 构建镜像, 并打 tag
         - name: Build docker image
-          uses: docker/build-push-action@v3
-          with:
-            push: false
-            platforms: linux/amd64
-            tags: jerryliang/chatglm2:latest
+          run: |
+            sudo docker buildx build --platform linux/amd64 -t ccr.ccs.tencentyun.com/jerryliang/chatglm2:latest . 
           
 
         - name: push to tencentyun
