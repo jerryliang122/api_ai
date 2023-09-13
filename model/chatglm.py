@@ -14,7 +14,6 @@ from config import (
 import time
 
 sys.path.append("src")
-from peft import PeftModel
 
 DEVICE = "cuda"
 DEVICE_ID = "0"
@@ -24,25 +23,18 @@ CUDA_DEVICE = f"{DEVICE}:{DEVICE_ID}" if DEVICE_ID else DEVICE
 class chatGLM2_6B:
     def __init__(self):
         self.tokenizer = AutoTokenizer.from_pretrained(
-            "/root/model/chatglm2-6b-32k", trust_remote_code=True, local_files_only=True
+            "./chatglm2-6b-32k", trust_remote_code=True, local_files_only=True
         )
         model = (
-            AutoModel.from_pretrained("/root/model/chatglm2-6b-32k", trust_remote_code=True, local_files_only=True)
+            AutoModel.from_pretrained("./chatglm2-6b-32k", trust_remote_code=True, local_files_only=True)
             .half()
             .cuda()
         )
-        self.model = PeftModel.from_pretrained(model, "./chatglm2-lora/")
 
-    def chat(self, prompt, history, lora, temperature):
-        if lora:
-            response, history = self.model.chat(
+    def chat(self, prompt, history, temperature):
+        response, history = self.model.chat(
                 self.tokenizer, prompt, history=history, max_length=32000, top_p=0.7, temperature=temperature
             )
-        else:
-            with self.model.disable_adapter():
-                response, history = self.model.chat(
-                    self.tokenizer, prompt, history=history, max_length=32000, temperature=temperature
-                )
         # 回收显存
         if torch.cuda.is_available():
             with torch.cuda.device(CUDA_DEVICE):
