@@ -22,6 +22,9 @@ jobs:
             large-packages: true
             docker-images: false
             swap-storage: true   
+        - name: clean docker image
+          run: |
+            docker image prune --force --all
 
         - name: clone chatglm2-6b-32K
           run: |
@@ -69,6 +72,10 @@ jobs:
           large-packages: true
           docker-images: false
           swap-storage: true   
+
+      - name: clean docker image
+        run: |
+          docker image prune --force --all
 
       - name: clone chatglm2-6b-32K
         run: |
