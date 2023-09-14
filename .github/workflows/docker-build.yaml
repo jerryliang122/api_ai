@@ -27,9 +27,9 @@ jobs:
           uses: actions/checkout@v2
 
         - name: clone chatglm2-6b-32K
+          workflow_dispatch: /mnt 
           run: |
             git clone https://huggingface.co/THUDM/chatglm2-6b-32k
-            ls
             
         # 设置 QEMU, 后面 docker buildx 依赖此.
         - name: Set up QEMU
