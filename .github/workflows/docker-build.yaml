@@ -6,10 +6,6 @@ on:
 jobs:
     hk:
         runs-on: ubuntu-latest
-        defaults:
-            run:
-                shell: bash
-                working-directory: ${{ github.workspace }}
         steps:
         - name: Free Disk Space (Ubuntu)
           uses: jerryliang122/free-disk-space@main
@@ -61,10 +57,6 @@ jobs:
 
     gd:
       runs-on: ubuntu-latest
-      defaults:
-        run:
-            shell: bash
-            working-directory: ${{ github.workspace }}
       steps:
       - name: Free Disk Space (Ubuntu)
         uses: jerryliang122/free-disk-space@main
