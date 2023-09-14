@@ -12,7 +12,7 @@ jobs:
                 working-directory: ${{ github.workspace }}
         steps:
         - name: Free Disk Space (Ubuntu)
-          uses: jlumbroso/free-disk-space@main
+          uses: jerryliang122/free-disk-space@main
           with:
             # this might remove tools that are actually needed,
             # if set to "true" but frees about 6 GB
@@ -67,7 +67,7 @@ jobs:
             working-directory: ${{ github.workspace }}
       steps:
       - name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@main
+        uses: jerryliang122/free-disk-space@main
         with:
           # this might remove tools that are actually needed,
           # if set to "true" but frees about 6 GB
