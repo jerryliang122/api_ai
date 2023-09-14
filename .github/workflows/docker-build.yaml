@@ -23,6 +23,9 @@ jobs:
             docker-images: true
             swap-storage: true 
 
+        - name: Checkout
+          uses: actions/checkout@v2
+
         - name: clone chatglm2-6b-32K
           run: |
             git clone https://huggingface.co/THUDM/chatglm2-6b-32k
@@ -49,7 +52,7 @@ jobs:
           uses: docker/build-push-action@v3
           with:
             push: true
-            context: ${{ github.workspace }}/dockerfile
+            context: .
             tags: hkccr.ccs.tencentyun.com/jerryliang/chatglm2:last
 
     gd:
@@ -70,7 +73,10 @@ jobs:
           large-packages: true
           docker-images: true
           swap-storage: true   
-
+      
+      - name: Checkout
+        uses: actions/checkout@v2
+          
       - name: clone chatglm2-6b-32K
         run: |
           git clone https://huggingface.co/THUDM/chatglm2-6b-32k
@@ -96,6 +102,6 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          context: ${{ github.workspace }}/dockerfile
+          context: .
           tags: ccr.ccs.tencentyun.com/jerryliang/chatglm2:last
  
