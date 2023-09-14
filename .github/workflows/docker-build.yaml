@@ -6,10 +6,6 @@ on:
 jobs:
     hk:
         runs-on: ubuntu-latest
-        defaults:
-          run:
-              shell: bash
-              working-directory: ${{ github.workspace }}
         steps:
         - name: Free Disk Space (Ubuntu)
           uses: jerryliang122/free-disk-space@main
@@ -53,15 +49,11 @@ jobs:
           uses: docker/build-push-action@v3
           with:
             push: true
-            context: . 
+            context: ${{ github.workspace }} 
             tags: hkccr.ccs.tencentyun.com/jerryliang/chatglm2:last
 
     gd:
       runs-on: ubuntu-latest
-      defaults:
-        run:
-            shell: bash
-            working-directory: ${{ github.workspace }}
       steps:
       - name: Free Disk Space (Ubuntu)
         uses: jerryliang122/free-disk-space@main
@@ -104,6 +96,6 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          context: .
+          context: ${{ github.workspace }}
           tags: ccr.ccs.tencentyun.com/jerryliang/chatglm2:last
  
