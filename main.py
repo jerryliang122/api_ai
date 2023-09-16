@@ -3,6 +3,8 @@ from qcloud_cos import CosS3Client
 import sys
 import os
 
+init_rate = 0
+
 
 def percentage(consumed_bytes, total_bytes):
     """进度条回调函数，计算当前上传的百分比
@@ -10,11 +12,10 @@ def percentage(consumed_bytes, total_bytes):
     :param consumed_bytes: 已经上传/下载的数据量
     :param total_bytes: 总数据量
     """
-    init_rate = 0
     if total_bytes:
         rate = int(100 * (float(consumed_bytes) / float(total_bytes)))
         if rate != init_rate:
-            print("正在上传\r{0}% ".format(rate))
+            print("正在上传{0}% ".format(rate))
             init_rate = rate
             sys.stdout.flush()
 
