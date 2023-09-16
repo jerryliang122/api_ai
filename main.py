@@ -3,6 +3,19 @@ from qcloud_cos import CosS3Client
 import sys
 import os
 
+
+def percentage(consumed_bytes, total_bytes):
+    """进度条回调函数，计算当前上传的百分比
+
+    :param consumed_bytes: 已经上传/下载的数据量
+    :param total_bytes: 总数据量
+    """
+    if total_bytes:
+        rate = int(100 * (float(consumed_bytes) / float(total_bytes)))
+        print("\r{0}% ".format(rate))
+        sys.stdout.flush()
+
+
 # 获取qcloud_secret_id环境变量
 secret_id = os.environ.get("secret_id")
 secret_key = os.environ.get("secret_key")
@@ -13,6 +26,9 @@ config = CosConfig(Region=region, SecretId=secret_id, SecretKey=secret_key, Toke
 client = CosS3Client(config)
 
 response = client.upload_file(
-    Bucket="jerryliang-10052152", LocalFilePath="chatglm2-6b-32K.zip", Key="chatglm2-6b-32K.zip"
+    Bucket="jerryliang-10052152",
+    LocalFilePath="chatglm2-6b-32K.zip",
+    Key="chatglm2-6b-32K.zip",
+    progress_callback=percentage,
 )
 print(response["ETag"])
