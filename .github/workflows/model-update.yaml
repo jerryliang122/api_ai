@@ -11,7 +11,8 @@ jobs:
           secret_key: ${{secrets.qcloud_secret_key}}
           region: ${{secrets.qcloud_region}}
         steps:
-        - uses: actions/checkout@v2
+        - name: Checkout
+          uses: actions/checkout@v4
 
         - name: clone chatglm2-32k
           run: |
