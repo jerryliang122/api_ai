@@ -2,6 +2,7 @@ from qcloud_cos import CosConfig
 from qcloud_cos import CosS3Client
 import sys
 import os
+import time
 
 init_rate = 0
 
@@ -14,10 +15,13 @@ def percentage(consumed_bytes, total_bytes):
     """
     if total_bytes:
         rate = int(100 * (float(consumed_bytes) / float(total_bytes)))
-        if rate != init_rate:
-            print("正在上传{0}% ".format(rate))
+        if rate > init_rate:
+            print("正在上传" + rate + "%\n", flush=True)
+            current_time = time.time()  # 记录当前的时间
+            elapsed_time = current_time - start_time  # 计算已经上传了多少时间
+            speed = round(consumed_bytes / elapsed_time, 2)  # 计算每秒上传了多少字节
+            print("每秒上传" + speed + "字节\n", flush=True)
             init_rate = rate
-            sys.stdout.flush()
 
 
 # 获取qcloud_secret_id环境变量
@@ -28,7 +32,9 @@ token = None  # 使用临时密钥需要传入 Token，默认为空，可不填
 scheme = "https"  # 指定使用 http/https 协议来访问 COS，默认为 https，可不填
 config = CosConfig(Region=region, SecretId=secret_id, SecretKey=secret_key, Token=token, Scheme=scheme)
 client = CosS3Client(config)
-print("开始上载")
+start_time = time.time()
+print("开始上载", flush=True)
+sys.stdout.flush()
 response = client.upload_file(
     Bucket="jerryliang-10052152",
     LocalFilePath="chatglm2-6b-32K.zip",
