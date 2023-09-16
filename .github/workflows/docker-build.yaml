@@ -1,4 +1,4 @@
-name: docker build
+name: upload model to cos
 on: 
   push:
     branches: [ model-upload-cos ]
