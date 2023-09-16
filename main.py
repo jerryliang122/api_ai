@@ -21,6 +21,7 @@ from config import (
 )
 import torch
 import gc
+import qcloud
 
 TIMEOUT = 120
 model_lists = ["chatglm2-6b"]
@@ -87,6 +88,6 @@ async def create_chat_completion(request: ChatRequest):
     return ChatResponse(response=response, status=200, history=history)
 
 
-
 if __name__ == "__main__":
+    data = qcloud.download_file()
     uvicorn.run(app, host="0.0.0.0", port=9000, workers=1)

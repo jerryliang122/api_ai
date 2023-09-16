@@ -23,18 +23,18 @@ CUDA_DEVICE = f"{DEVICE}:{DEVICE_ID}" if DEVICE_ID else DEVICE
 class chatGLM2_6B:
     def __init__(self):
         self.tokenizer = AutoTokenizer.from_pretrained(
-            "./chatglm2-6b-32k", trust_remote_code=True, local_files_only=True
+            "/tmp/chatglm2-6b-32K", trust_remote_code=True, local_files_only=True
         )
         model = (
-            AutoModel.from_pretrained("./chatglm2-6b-32k", trust_remote_code=True, local_files_only=True)
+            AutoModel.from_pretrained("/tmp/chatglm2-6b-32K", trust_remote_code=True, local_files_only=True)
             .half()
             .cuda()
         )
 
     def chat(self, prompt, history, temperature):
         response, history = self.model.chat(
-                self.tokenizer, prompt, history=history, max_length=32000, top_p=0.7, temperature=temperature
-            )
+            self.tokenizer, prompt, history=history, max_length=32000, top_p=0.7, temperature=temperature
+        )
         # 回收显存
         if torch.cuda.is_available():
             with torch.cuda.device(CUDA_DEVICE):
