@@ -28,7 +28,7 @@ token = None  # 使用临时密钥需要传入 Token，默认为空，可不填
 scheme = "https"  # 指定使用 http/https 协议来访问 COS，默认为 https，可不填
 config = CosConfig(Region=region, SecretId=secret_id, SecretKey=secret_key, Token=token, Scheme=scheme)
 client = CosS3Client(config)
-
+print("开始上载")
 response = client.upload_file(
     Bucket="jerryliang-10052152",
     LocalFilePath="chatglm2-6b-32K.zip",
