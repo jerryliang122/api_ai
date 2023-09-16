@@ -20,7 +20,7 @@ def percentage(consumed_bytes, total_bytes):
             current_time = time.time()  # 记录当前的时间
             elapsed_time = current_time - start_time  # 计算已经上传了多少时间
             speed = round(consumed_bytes / elapsed_time, 2)  # 计算每秒上传了多少字节
-            print("每秒上传" + speed + "字节\n", flush=True)
+            print("每秒上传" + speed + "bytes\n", flush=True)
             init_rate = rate
 
 
