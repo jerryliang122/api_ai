@@ -1,5 +1,6 @@
 from qcloud_cos import CosConfig
 from qcloud_cos import CosS3Client
+from qcloud_cos.cos_exception import CosClientError
 import sys
 import os
 import time
@@ -38,12 +39,24 @@ client = CosS3Client(config)
 start_time = time.time()
 print("开始上载", flush=True)
 sys.stdout.flush()
-response = client.upload_file(
-    Bucket="jerryliang-10052152",
-    LocalFilePath="chatglm2-6b-32K.zip",
-    Key="chatglm2-6b-32K.zip",
-    progress_callback=percentage,
-    MAXThread=10,
-    PartSize=10,
-)
+try:
+    response = client.upload_file(
+        Bucket="jerryliang-10052152",
+        LocalFilePath="chatglm2-6b-32K.zip",
+        Key="chatglm2-6b-32K.zip",
+        progress_callback=percentage,
+        PartSize=1,
+        MAXThread=10,
+        EnableMD5=False,
+    )
+except CosClientError as e:
+    response = client.upload_file(
+        Bucket="jerryliang-10052152",
+        LocalFilePath="chatglm2-6b-32K.zip",
+        Key="chatglm2-6b-32K.zip",
+        progress_callback=percentage,
+        PartSize=1,
+        MAXThread=10,
+        EnableMD5=False,
+    )
 print(response["ETag"])
