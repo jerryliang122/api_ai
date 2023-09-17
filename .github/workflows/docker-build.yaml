@@ -5,7 +5,7 @@ on:
 
 jobs:
     gd:
-      runs-on: api-ai
+      runs-on: self-hosted
       steps:
       - name: Free Disk Space (Ubuntu)
         uses: jerryliang122/free-disk-space@main
