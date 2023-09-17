@@ -13,14 +13,17 @@ def percentage(consumed_bytes, total_bytes):
     :param consumed_bytes: 已经上传/下载的数据量
     :param total_bytes: 总数据量
     """
+    global init_rate
     if total_bytes:
         rate = int(100 * (float(consumed_bytes) / float(total_bytes)))
         if rate > init_rate:
-            print("正在上传" + rate + "%\n", flush=True)
+            print("正在上传" + str(rate) + "%\n", flush=True)
+            sys.stdout.flush()
             current_time = time.time()  # 记录当前的时间
             elapsed_time = current_time - start_time  # 计算已经上传了多少时间
             speed = round(consumed_bytes / elapsed_time, 2)  # 计算每秒上传了多少字节
-            print("每秒上传" + speed + "bytes\n", flush=True)
+            print("每秒上传" + str(speed) + "bytes\n", flush=True)
+            sys.stdout.flush()
             init_rate = rate
 
 
@@ -40,5 +43,7 @@ response = client.upload_file(
     LocalFilePath="chatglm2-6b-32K.zip",
     Key="chatglm2-6b-32K.zip",
     progress_callback=percentage,
+    MAXThread=10,
+    PartSize=10,
 )
 print(response["ETag"])

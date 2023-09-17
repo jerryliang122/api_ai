@@ -5,7 +5,7 @@ on:
 
 jobs:
     sh:
-        runs-on: self-hosted
+        runs-on: ubuntu-latest
         env:
           secret_id: ${{secrets.qcloud_secret_id}}
           secret_key: ${{secrets.qcloud_secret_key}}
