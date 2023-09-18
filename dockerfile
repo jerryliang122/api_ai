@@ -3,5 +3,5 @@ WORKDIR /app
 COPY . /app
 RUN apt-get update  && apt install git -y && apt-get clean &&\
     ln -s /root/.cache /tmp
-RUN pip install -r requirements.txt
+RUN pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 CMD python main.py
