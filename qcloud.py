@@ -22,3 +22,4 @@ def download_file():
     zip_file = zipfile.ZipFile("/tmp/chatglm2-6b-32K.zip")
     zip_extract = zip_file.extractall("/tmp/chatglm2-6b-32K")
     zip_extract.close()
+    return True

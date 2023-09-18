@@ -1,4 +1,7 @@
 import time
+import qcloud
+
+data = qcloud.download_file()
 import uvicorn
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -21,7 +24,7 @@ from config import (
 )
 import torch
 import gc
-import qcloud
+
 
 TIMEOUT = 120
 model_lists = ["chatglm2-6b"]
@@ -89,5 +92,5 @@ async def create_chat_completion(request: ChatRequest):
 
 
 if __name__ == "__main__":
-    data = qcloud.download_file()
+    print(str(data), flush=True)
     uvicorn.run(app, host="0.0.0.0", port=9000, workers=1)
