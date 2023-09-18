@@ -15,7 +15,7 @@ def download_file():
     config = CosConfig(Region=region, SecretId=secret_id, SecretKey=secret_key, Token=token, Scheme=scheme)
     client = CosS3Client(config)
     response = client.download_file(
-        Bucket="jerryliang-10052152", Key="chatglm2-6b-32K.zip", DestFilePath="/tmp/chatglm2-6b-32K.zip"
+        Bucket="jerryliang-10052152", Key="chatglm2-6b-32k.zip", DestFilePath="/tmp/chatglm2-6b-32K.zip"
     )
     print(response["ETag"])
     # 解压/tmp/chatglm2-6b-32K.zip
@@ -23,3 +23,7 @@ def download_file():
     zip_extract = zip_file.extractall("/tmp/chatglm2-6b-32K")
     zip_extract.close()
     return True
+
+
+if __name__ == "__main__":
+    download_file()
