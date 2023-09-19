@@ -14,14 +14,8 @@ def download_file():
     scheme = "https"  # 指定使用 http/https 协议来访问 COS，默认为 https，可不填
     config = CosConfig(Region=region, SecretId=secret_id, SecretKey=secret_key, Token=token, Scheme=scheme)
     client = CosS3Client(config)
-    response = client.download_file(
-        Bucket="jerryliang-10052152",
-        Key="chatglm2-6b-32k.zip",
-        DestFilePath="/tmp/chatglm2-6b-32K.zip",
-        EnableCRC=False,
-        PartSize=1000,
-    )
-    print(response["ETag"])
+    response = client.get_object(Bucket="jerryliang-10052152", Key="chatglm2-6b-32k.zip")
+    response["Body"].get_stream_to_file("/tmp/chatglm2-6b-32K.zip")
     # 解压/tmp/chatglm2-6b-32K.zip
     zip_file = zipfile.ZipFile("/tmp/chatglm2-6b-32K.zip")
     zip_extract = zip_file.extractall("/tmp/chatglm2-6b-32K")
