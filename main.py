@@ -29,7 +29,7 @@ async def upload_file(file, file_path_cos, client):
     global start_time
     start_time = time.time()
     try:
-        await asyncio.to_thread(client.upload_file)(
+        await client.upload_file(
             Bucket="ai-1251947439",
             Key=f"chatglm2-6b-32k/{file}",
             FilePath=file_path_cos,
@@ -41,7 +41,6 @@ async def upload_file(file, file_path_cos, client):
 
 
 async def main():
-    global file
     secret_id = os.environ.get("secret_id")
     secret_key = os.environ.get("secret_key")
     region = os.environ.get("region")
@@ -54,6 +53,7 @@ async def main():
     file_names = os.listdir(file_path)
 
     tasks = []
+    global file
     for file in file_names:
         file_path_cos = os.path.join(file_path, file)
         task = asyncio.create_task(upload_file(file, file_path_cos, client))
