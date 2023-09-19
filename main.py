@@ -41,6 +41,7 @@ async def upload_file(file, file_path_cos, client):
 
 
 async def main():
+    global file
     secret_id = os.environ.get("secret_id")
     secret_key = os.environ.get("secret_key")
     region = os.environ.get("region")
