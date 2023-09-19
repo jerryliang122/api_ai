@@ -32,6 +32,7 @@ async def upload_file(file, file_path_cos, client):
         await client.upload_file(
             Bucket="ai-1251947439",
             Key=f"chatglm2-6b-32k/{file}",
+            LocalFilePath=file_path_cos,
             FilePath=file_path_cos,
             PartSize=50,
             progress_callback=percentage,
@@ -48,7 +49,6 @@ async def main():
     scheme = "https"
     config = CosConfig(Region=region, SecretId=secret_id, SecretKey=secret_key, Token=token, Scheme=scheme)
     client = CosS3Client(config)
-
     file_path = os.path.join(os.getcwd(), "chatglm2-6b-32k")
     file_names = os.listdir(file_path)
 
