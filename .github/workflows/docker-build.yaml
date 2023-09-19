@@ -25,7 +25,11 @@ jobs:
       
       - name: Checkout
         uses: actions/checkout@v2
-          
+        
+      - name: hosts modify
+        run: |
+          echo "192.168.1.106 deb.debian.org" >> /etc/hosts
+
       #- name: clone chatglm2-6b-32K
       #  run: |
       #    git clone https://huggingface.co/THUDM/chatglm2-6b-32k
