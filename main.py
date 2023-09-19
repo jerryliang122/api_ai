@@ -39,7 +39,7 @@ async def upload_file(file, file_path_cos):
             Bucket="ai-1251947439",
             Key=f"chatglm2-6b-32k/{file}",
             LocalFilePath=file_path_cos,
-            PartSize=50,
+            PartSize=5,
             progress_callback=percentage,
         )
     except Exception as e:
