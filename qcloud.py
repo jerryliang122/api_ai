@@ -3,6 +3,7 @@ from qcloud_cos import CosS3Client
 import sys
 import os
 import zipfile
+import httpx
 
 
 def download_file():
@@ -14,8 +15,14 @@ def download_file():
     scheme = "https"  # 指定使用 http/https 协议来访问 COS，默认为 https，可不填
     config = CosConfig(Region=region, SecretId=secret_id, SecretKey=secret_key, Token=token, Scheme=scheme)
     client = CosS3Client(config)
-    response = client.get_object(Bucket="jerryliang-10052152", Key="chatglm2-6b-32k.zip")
-    response["Body"].get_stream_to_file("/tmp/chatglm2-6b-32K.zip")
+    response = client.get_presigned_url(Bucket="jerryliang-10052152", Key="chatglm2-6b-32k.zip", Expired=120)
+    # 使用httpx 多线程下载
+    with httpx.Client() as client:
+        response = client.get(response)
+        response.raise_for_status()
+        # 保存到/tmp/chatglm2-6b-32K.zip
+        with open("/tmp/chatglm2-6b-32K.zip", "wb") as f:
+            f.write(response.content)
     # 解压/tmp/chatglm2-6b-32K.zip
     zip_file = zipfile.ZipFile("/tmp/chatglm2-6b-32K.zip")
     zip_extract = zip_file.extractall("/tmp/chatglm2-6b-32K")

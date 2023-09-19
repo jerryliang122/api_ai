@@ -11,3 +11,4 @@ accelerate
 sse-starlette
 streamlit>=1.24.0
 cos_python_sdk_v5==1.9.26
+httpx==0.25.0
