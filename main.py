@@ -18,12 +18,13 @@ def percentage(consumed_bytes, total_bytes):
     if total_bytes:
         rate = int(100 * (float(consumed_bytes) / float(total_bytes)))
         if rate > init_rate:
-            print("正在上传" + str(rate) + "%\n", flush=True)
             sys.stdout.flush()
             current_time = time.time()  # 记录当前的时间
             elapsed_time = current_time - start_time  # 计算已经上传了多少时间
             speed = round(consumed_bytes / elapsed_time, 2)  # 计算每秒上传了多少字节
-            print("每秒上传" + str(speed) + "bytes\n", flush=True)
+            # 将speed转换为MB
+            speed = round(speed / 1024 / 1024, 2)
+            print(f"正在上传：{file} // 已完成:{rate} %  速度：{speed}MB", flush=True)
             sys.stdout.flush()
             init_rate = rate
 
@@ -36,27 +37,20 @@ token = None  # 使用临时密钥需要传入 Token，默认为空，可不填
 scheme = "https"  # 指定使用 http/https 协议来访问 COS，默认为 https，可不填
 config = CosConfig(Region=region, SecretId=secret_id, SecretKey=secret_key, Token=token, Scheme=scheme)
 client = CosS3Client(config)
-start_time = time.time()
-print("开始上载", flush=True)
+# 获取当前目录下的chatglm2-6b-32k 文件
+file_path = os.path.join(os.getcwd(), "chatglm2-6b-32k")
+# 获取file_path目录下的文件名
+file_name = os.listdir(file_path)
+# 上传所有文件到cos
+for file in file_name:
+    file_path_cos = os.path.join(file_path, file)
+    start_time = time.time()  # 记录开始时间
+    client.upload_file(
+        Bucket="ai-1251947439",
+        Key=f"chatglm2-6b-32k/{file}",
+        FilePath=file_path_cos,
+        PartSize=50,
+        progress_callback=percentage,
+    )
+
 sys.stdout.flush()
-try:
-    response = client.upload_file(
-        Bucket="jerryliang-10052152",
-        LocalFilePath="chatglm2-6b-32K.zip",
-        Key="chatglm2-6b-32K.zip",
-        progress_callback=percentage,
-        PartSize=1,
-        MAXThread=10,
-        EnableMD5=False,
-    )
-except CosClientError as e:
-    response = client.upload_file(
-        Bucket="jerryliang-10052152",
-        LocalFilePath="chatglm2-6b-32K.zip",
-        Key="chatglm2-6b-32K.zip",
-        progress_callback=percentage,
-        PartSize=1,
-        MAXThread=10,
-        EnableMD5=False,
-    )
-print(response["ETag"])

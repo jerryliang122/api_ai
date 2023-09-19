@@ -38,10 +38,6 @@ jobs:
         - name: download requirements.txt
           run: |
             pip install -r requirements.txt
-        
-        - name: zip chatglm2-32k
-          run: |
-            zip -r -0 chatglm2-6b-32K.zip chatglm2-6b-32k
 
         - name: upload chatglm2-32k
           run: |
