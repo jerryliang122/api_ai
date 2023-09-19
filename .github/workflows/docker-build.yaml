@@ -31,14 +31,6 @@ jobs:
       #    git clone https://huggingface.co/THUDM/chatglm2-6b-32k
       #    cd chatglm2-6b-32k && rm -rf .git
 
-      # 设置 QEMU, 后面 docker buildx 依赖此.
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-      
-          # 设置 Docker buildx, 方便构建 Multi platform 镜像
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-      
       # 登录腾讯docker
       - name: Login to Tencent docker
         uses: docker/login-action@v3
@@ -47,11 +39,9 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # 构建镜像, 并打 tag
-      - name: Build docker image
-        uses: docker/build-push-action@v3
-        with:
-          push: true
-          context: .
-          tags: ccr.ccs.tencentyun.com/jerryliang/chatglm2:last
  
+      - name: Build docker image
+        run: |
+          docker build -t ccr.ccs.tencentyun.com/jerryliang/chatglm2:last . 
+          docker push ccr.ccs.tencentyun.com/jerryliang/chatglm2:last
+
