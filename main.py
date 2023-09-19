@@ -7,6 +7,7 @@ from qcloud_cos.cos_exception import CosClientError
 import time
 import sys
 
+start_time = time.time()
 init_rate = 0
 secret_id = os.environ.get("secret_id")
 secret_key = os.environ.get("secret_key")
@@ -33,8 +34,6 @@ def percentage(consumed_bytes, total_bytes):
 
 
 async def upload_file(file, file_path_cos):
-    global start_time
-    start_time = time.time()
     try:
         await client.upload_file(
             Bucket="ai-1251947439",
