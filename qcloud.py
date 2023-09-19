@@ -15,7 +15,9 @@ def download_file():
     scheme = "https"  # 指定使用 http/https 协议来访问 COS，默认为 https，可不填
     config = CosConfig(Region=region, SecretId=secret_id, SecretKey=secret_key, Token=token, Scheme=scheme)
     client = CosS3Client(config)
-    response = client.get_presigned_url(Bucket="jerryliang-10052152", Key="chatglm2-6b-32k.zip", Expired=120)
+    response = client.get_presigned_url(
+        Bucket="jerryliang-10052152", Key="chatglm2-6b-32k.zip", Expired=120, Method="GET"
+    )
     # 使用httpx 多线程下载
     with httpx.Client() as client:
         response = client.get(response)
