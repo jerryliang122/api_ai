@@ -8,6 +8,13 @@ import time
 import sys
 
 init_rate = 0
+secret_id = os.environ.get("secret_id")
+secret_key = os.environ.get("secret_key")
+region = os.environ.get("region")
+token = None
+scheme = "https"
+config = CosConfig(Region=region, SecretId=secret_id, SecretKey=secret_key, Token=token, Scheme=scheme)
+client = CosS3Client(config)
 
 
 def percentage(consumed_bytes, total_bytes):
@@ -25,7 +32,7 @@ def percentage(consumed_bytes, total_bytes):
             init_rate = rate
 
 
-async def upload_file(file, file_path_cos, client):
+async def upload_file(file, file_path_cos):
     global start_time
     start_time = time.time()
     try:
@@ -33,7 +40,6 @@ async def upload_file(file, file_path_cos, client):
             Bucket="ai-1251947439",
             Key=f"chatglm2-6b-32k/{file}",
             LocalFilePath=file_path_cos,
-            FilePath=file_path_cos,
             PartSize=50,
             progress_callback=percentage,
         )
@@ -42,13 +48,6 @@ async def upload_file(file, file_path_cos, client):
 
 
 async def main():
-    secret_id = os.environ.get("secret_id")
-    secret_key = os.environ.get("secret_key")
-    region = os.environ.get("region")
-    token = None
-    scheme = "https"
-    config = CosConfig(Region=region, SecretId=secret_id, SecretKey=secret_key, Token=token, Scheme=scheme)
-    client = CosS3Client(config)
     file_path = os.path.join(os.getcwd(), "chatglm2-6b-32k")
     file_names = os.listdir(file_path)
 
@@ -56,7 +55,7 @@ async def main():
     global file
     for file in file_names:
         file_path_cos = os.path.join(file_path, file)
-        task = asyncio.create_task(upload_file(file, file_path_cos, client))
+        task = asyncio.create_task(upload_file(file, file_path_cos))
         tasks.append(task)
 
     await asyncio.gather(*tasks)
