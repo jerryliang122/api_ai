@@ -15,7 +15,6 @@ region = os.environ.get("region")
 token = None
 scheme = "https"
 config = CosConfig(Region=region, SecretId=secret_id, SecretKey=secret_key, Token=token, Scheme=scheme)
-client = CosS3Client(config)
 
 
 def percentage(consumed_bytes, total_bytes):
@@ -35,6 +34,7 @@ def percentage(consumed_bytes, total_bytes):
 
 async def upload_file(file, file_path_cos):
     try:
+        client = CosS3Client(config)
         await client.upload_file(
             Bucket="ai-1251947439",
             Key=f"chatglm2-6b-32k/{file}",
