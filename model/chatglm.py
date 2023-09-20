@@ -25,7 +25,7 @@ class chatGLM2_6B:
         self.tokenizer = AutoTokenizer.from_pretrained(
             "/tmp/chatglm2-6b-32K", local_files_only=True, trust_remote_code=True
         )
-        model = (
+        self.model = (
             AutoModel.from_pretrained("/tmp/chatglm2-6b-32K", local_files_only=True, trust_remote_code=True)
             .half()
             .cuda()
