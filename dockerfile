@@ -5,5 +5,5 @@ RUN apt-get update  && apt install git wget fuse -y && apt-get clean &&\
     wget https://github.com/tencentyun/cosfs/releases/download/v1.0.21/cosfs_1.0.21-ubuntu20.04_amd64.deb &&\
     dpkg -i cosfs_1.0.21-ubuntu20.04_amd64.deb &&\
     ln -s /root/.cache /tmp
-RUN pip install -r requirements.txt -i https://mirrors.cloud.tencent.com/pypi/simple
+RUN pip install -r requirements.txt 
 CMD ['bash', 'start.sh']
