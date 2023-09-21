@@ -6,7 +6,6 @@ from contextlib import asynccontextmanager
 from sse_starlette.sse import ServerSentEvent, EventSourceResponse
 import datetime
 import asyncio
-from model.chatglm import chatGLM2_6B
 from config import (
     ModelCard,
     ChatMessage,
@@ -27,10 +26,18 @@ TIMEOUT = 120
 model_lists = ["chatglm2-6b"]
 loading = None
 last_access_time = None
+model = None
 
-# 创建一个 asyncio.Event 对象
-stop_event = asyncio.Event()
-model = chatGLM2_6B()
+
+async def load_model():
+    # 下载model文件
+    from download_model import main
+    from model.chatglm import chatGLM2_6B
+
+    global model
+    # 下载
+    await main()
+    model = chatGLM2_6B()
 
 
 app = FastAPI()
@@ -89,4 +96,5 @@ async def create_chat_completion(request: ChatRequest):
 
 
 if __name__ == "__main__":
+    asyncio.run(load_model())
     uvicorn.run(app, host="0.0.0.0", port=9000, workers=1)
