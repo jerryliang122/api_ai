@@ -3,6 +3,7 @@ from qcloud_cos import CosS3Client
 import os
 import httpx
 import asyncio
+import aiofiles
 
 # 初始化COS
 secret_id = os.environ.get("secret_id")
@@ -35,6 +36,7 @@ async def download_file(url, filename):
 
 async def main():
     # 获取list
+    os.mkdir("/tmp/chatglm2-6b-32k")
     urls = await file_list_url()
     print(urls)
 
@@ -69,8 +71,9 @@ def file_list_url():
 async def download_file(url, filename):
     async with httpx.AsyncClient() as client:
         r = await client.get(url)
-        with open(filename, "wb") as f:
-            f.write(r.content)
+        async with aiofiles.open(filename, "wb") as f:
+            # 使用await f.write来异步写入文件
+            await f.write(r.content)
 
 
 async def main():
@@ -86,6 +89,4 @@ async def main():
 
 
 if __name__ == "__main__":
-    import asyncio
-
     asyncio.run(main())
