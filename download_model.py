@@ -2,6 +2,7 @@ from qcloud_cos import CosConfig
 from qcloud_cos import CosS3Client
 import os
 import httpx
+import asyncio
 
 # 初始化COS
 secret_id = os.environ.get("secret_id")
