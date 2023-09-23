@@ -20,22 +20,21 @@ from config import (
 )
 import torch
 import gc
+from download_model import main
+from model.chatglm import chatGLM2_6B
 
 
 TIMEOUT = 120
 model_lists = ["chatglm2-6b"]
-loading = None
+loading = False
 last_access_time = None
 model = None
 
 
 async def load_model():
-    # 下载model文件
-    from download_model import main
-    from model.chatglm import chatGLM2_6B
-
     global model
     # 下载
+    loading = True
     await main()
     model = chatGLM2_6B()
 
@@ -62,6 +61,12 @@ async def list_models():
 @app.post("/v1/chat/completions", response_model=ChatCompletionResponse)
 async def create_chat_completion(request: ChatCompletionRequest):
     global model, last_access_time
+    # 如果model是None挂起这个连接。直到加载完毕
+    while model is None:
+        if loading:
+            await asyncio.sleep(1)
+        else:
+            await load_model()
     query = request.messages[-1].content
     last_access_time = datetime.datetime.now()
     prev_messages = request.messages[:-1]
@@ -96,8 +101,4 @@ async def create_chat_completion(request: ChatRequest):
 
 
 if __name__ == "__main__":
-    import os
-
-    os.system("ln -s /root/.cache /tmp/.cache/")
-    asyncio.run(load_model())
     uvicorn.run(app, host="0.0.0.0", port=9000, workers=1)
