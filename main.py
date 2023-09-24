@@ -26,17 +26,7 @@ from model.chatglm import chatGLM2_6B
 
 TIMEOUT = 120
 model_lists = ["chatglm2-6b"]
-loading = False
-last_access_time = None
-model = None
-
-
-async def load_model():
-    global model
-    # 下载
-    loading = True
-    await main()
-    model = chatGLM2_6B()
+model = chatGLM2_6B()
 
 
 app = FastAPI()
@@ -62,11 +52,6 @@ async def list_models():
 async def create_chat_completion(request: ChatCompletionRequest):
     global model, last_access_time
     # 如果model是None挂起这个连接。直到加载完毕
-    while model is None:
-        if loading:
-            await asyncio.sleep(1)
-        else:
-            await load_model()
     query = request.messages[-1].content
     last_access_time = datetime.datetime.now()
     prev_messages = request.messages[:-1]
@@ -93,6 +78,11 @@ async def create_chat_completion(request: ChatCompletionRequest):
 @app.post("/chatglm", response_model=ChatResponse)
 async def create_chat_completion(request: ChatRequest):
     global model, last_access_time
+    while model is None:
+        if loading:
+            await asyncio.sleep(1)
+        else:
+            await load_model()
     last_access_time = datetime.datetime.now()
     query = request.prompt
     history = request.history

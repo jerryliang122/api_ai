@@ -26,10 +26,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
           
-      #- name: clone chatglm2-6b-32K
-      #  run: |
-      #    git clone https://huggingface.co/THUDM/chatglm2-6b-32k
-      #    cd chatglm2-6b-32k && rm -rf .git
+      - name: clone chatglm2-6b-32K
+        run: |
+          git clone https://huggingface.co/THUDM/chatglm2-6b-32k
+          cd chatglm2-6b-32k && rm -rf .git
 
       # 设置 QEMU, 后面 docker buildx 依赖此.
       - name: Set up QEMU
@@ -43,7 +43,6 @@ jobs:
       - name: Login to Tencent docker
         uses: docker/login-action@v3
         with:
-          registry: ccr.ccs.tencentyun.com
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
@@ -53,5 +52,5 @@ jobs:
         with:
           push: true
           context: .
-          tags: ccr.ccs.tencentyun.com/jerryliang/chatglm2:last
+          tags: jerryliang/chatglm2:latest
  
