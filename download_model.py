@@ -36,15 +36,20 @@ async def download_file(url, filename):
 
 async def main():
     # 获取list
-    os.mkdir("/tmp/chatglm2-6b-32k")
+
+    from model.chatglm import chatGLM2_6B
+
+    os.makedirs("/tmp/model/chatglm2-6b-32k")
     urls = file_list_url()
     # 使用asyncio进行异步下载
     download_tasks = []
     for filename, url in urls:
-        filename = f"/tmp/{filename}"
+        filename = f"/tmp/model/{filename}"
         task = asyncio.create_task(download_file(url, filename))
         download_tasks.append(task)
     await asyncio.gather(*download_tasks)
+    os.chmod("/tmp/model/chatglm2-6b-32k", 777)
+    return chatGLM2_6B
 
 
 if __name__ == "__main__":
