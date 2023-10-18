@@ -26,6 +26,7 @@ from model.chatglm import chatGLM2_6B
 TIMEOUT = 120
 model_lists = ["chatglm2-6b"]
 model = None
+model = chatGLM2_6B()
 
 
 app = FastAPI()
