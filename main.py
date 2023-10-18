@@ -42,7 +42,7 @@ async def upload_file(file, file_path_cos):
                 Bucket="ai-1251947439",
                 Key=f"chatglm2-6b-32k/{file}",
                 LocalFilePath=file_path_cos,
-                PartSize=5,
+                PartSize=20,
                 progress_callback=percentage,
             ),
         )
