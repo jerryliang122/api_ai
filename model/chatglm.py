@@ -22,8 +22,10 @@ CUDA_DEVICE = f"{DEVICE}:{DEVICE_ID}" if DEVICE_ID else DEVICE
 
 class chatGLM2_6B:
     def __init__(self):
-        self.tokenizer = AutoTokenizer.from_pretrained("/tmp/model/chatglm2-6b-32k", local_files_only=True)
-        self.model = AutoModel.from_pretrained("/tmp/model/chatglm2-6b-32k", local_files_only=True).half().cuda()
+        self.tokenizer = AutoTokenizer.from_pretrained("THUDM/chatglm2-6b", trust_romote_code=True, revision="v1.0")
+        self.model = (
+            AutoModel.from_pretrained("THUDM/chatglm2-6b", trust_romote_code=True, revision="v1.0").half().cuda()
+        )
 
     def chat(self, prompt, history, temperature):
         response, history = self.model.chat(
