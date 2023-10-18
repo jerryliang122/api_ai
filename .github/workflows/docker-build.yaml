@@ -3,6 +3,11 @@ on:
   push:
     branches: [ chatglm2-6b-32K-tx ]
   workflow_dispatch:
+    inputs:
+      ssh:
+        description: 'SSH connection to Actions'
+        required: false
+        default: 'false'
 
 
 jobs:
@@ -10,7 +15,7 @@ jobs:
       runs-on: ubuntu-latest
       steps:
       - name: Free Disk Space (Ubuntu)
-        uses: jerryliang122/free-disk-space@main
+        uses: jlumbroso/free-disk-space@main
         with:
           # this might remove tools that are actually needed,
           # if set to "true" but frees about 6 GB
@@ -27,7 +32,14 @@ jobs:
       
       - name: Checkout
         uses: actions/checkout@v2
-
+      
+      - name: SSH connection to Actions
+        uses: P3TERX/ssh2actions@v1.0.0
+        if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false') || contains(github.event.action, 'ssh')
+        env:
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+  
       # 设置 QEMU, 后面 docker buildx 依赖此.
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
