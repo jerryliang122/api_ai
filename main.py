@@ -6,6 +6,8 @@ from qcloud_cos import CosS3Client
 from qcloud_cos.cos_exception import CosClientError
 import time
 import sys
+import math
+
 
 start_time = time.time()
 init_rate = 0
@@ -32,7 +34,7 @@ def percentage(consumed_bytes, total_bytes):
             init_rate = rate
 
 
-async def upload_file(file, file_path_cos):
+async def upload_file(file, file_path_cos, PartSize):
     loop = asyncio.get_running_loop()
     try:
         client = CosS3Client(config)
@@ -42,7 +44,7 @@ async def upload_file(file, file_path_cos):
                 Bucket="ai-1251947439",
                 Key=f"chatglm2-6b-32k/{file}",
                 LocalFilePath=file_path_cos,
-                PartSize=20,
+                PartSize=PartSize,
                 progress_callback=percentage,
             ),
         )
@@ -50,20 +52,22 @@ async def upload_file(file, file_path_cos):
         print(f"上传文件 {file} 失败：{str(e)}")
 
 
-async def main():
+def main():
     file_path = os.path.join(os.getcwd(), "chatglm2-6b-32k")
     file_names = os.listdir(file_path)
-
-    tasks = []
     global file
     for file in file_names:
-        file_path_cos = os.path.join(file_path, file)
-        task = asyncio.create_task(upload_file(file, file_path_cos))
-        tasks.append(task)
-
-    await asyncio.gather(*tasks)
+        # 获取file的文件大小
+        size = os.path.getsize(os.path.join(file_path, file))
+        # 转换成MB
+        size = round(size / 1024 / 1024, 2)
+        # 将文件分块成9999
+        PartSize = int(math.ceil(size / 9999))
+        print(f"文件名:{file}  分块大小:{str(PartSize)}")
+        file_path_cos = os.path.join(file_path, file, PartSize)
+        upload_file(file, file_path_cos)
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
     sys.stdout.flush()
