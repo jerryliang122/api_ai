@@ -34,11 +34,11 @@ def percentage(consumed_bytes, total_bytes):
             init_rate = rate
 
 
-async def upload_file(file, file_path_cos, PartSize):
+def upload_file(file, file_path_cos, PartSize):
     loop = asyncio.get_running_loop()
     try:
         client = CosS3Client(config)
-        await loop.run_in_executor(
+        loop.run_in_executor(
             None,
             client.upload_file(
                 Bucket="ai-1251947439",
