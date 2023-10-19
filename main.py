@@ -35,18 +35,14 @@ def percentage(consumed_bytes, total_bytes):
 
 
 def upload_file(file, file_path_cos, PartSize):
-    loop = asyncio.get_running_loop()
     try:
         client = CosS3Client(config)
-        loop.run_in_executor(
-            None,
-            client.upload_file(
-                Bucket="ai-1251947439",
-                Key=f"chatglm2-6b-32k/{file}",
-                LocalFilePath=file_path_cos,
-                PartSize=PartSize,
-                progress_callback=percentage,
-            ),
+        client.upload_file(
+            Bucket="ai-1251947439",
+            Key=f"chatglm2-6b-32k/{file}",
+            LocalFilePath=file_path_cos,
+            PartSize=PartSize,
+            progress_callback=percentage,
         )
     except Exception as e:
         print(f"上传文件 {file} 失败：{str(e)}")
