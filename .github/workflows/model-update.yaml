@@ -12,7 +12,7 @@ jobs:
           region: ${{secrets.qcloud_region}}
         steps:
         - name: Free Disk Space (Ubuntu)
-          uses: jerryliang122/free-disk-space@main
+          uses: jlumbroso/free-disk-space@main
           with:
              #this might remove tools that are actually needed,
              #if set to "true" but frees about 6 GB
@@ -29,6 +29,12 @@ jobs:
             
         - name: Checkout
           uses: actions/checkout@v4
+        
+        - name: Enable BBR congestion control
+          run: |
+            echo net.core.default_qdisc=fq >> /etc/sysctl.conf
+            echo net.ipv4.tcp_congestion_control=bbr >> /etc/sysctl.conf
+            sysctl -p
 
         - name: clone chatglm2-32k
           run: |
