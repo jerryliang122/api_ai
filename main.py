@@ -64,8 +64,8 @@ def main():
         # 将文件分块成9999
         PartSize = int(math.ceil(size / 9999))
         print(f"文件名:{file}  分块大小:{str(PartSize)}", flush=True)
-        file_path_cos = os.path.join(file_path, file, PartSize)
-        upload_file(file, file_path_cos)
+        file_path_cos = os.path.join(file_path, file)
+        upload_file(file, file_path_cos, PartSize)
 
 
 if __name__ == "__main__":
