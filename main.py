@@ -21,12 +21,13 @@ from config import (
 import torch
 import gc
 from init import init_model
+from model.chatglm import chatGLM2_6B
 
 
 TIMEOUT = 120
 model_lists = ["chatglm2-6b"]
-init = init_model
-model = init.main()
+init_m = init_model()
+model = init_m.main()
 
 
 app = FastAPI()
