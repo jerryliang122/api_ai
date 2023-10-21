@@ -36,6 +36,7 @@ class init_model:
             return True
         except Exception as e:
             print(f"下载失败: {filename}", flush=True)
+            raise Exception("已终止下载")
             return False
 
     def main(self):
@@ -43,7 +44,4 @@ class init_model:
         os.mkdir(f"/tmp/{self.prefix}")
         for filename, url in urls:
             download = self.download_file(url, filename)
-            if download == False:
-                # 引发异常并终止下载
-                raise Exception(f"下载失败: {filename}")
-        return chatGLM2_6B
+        return chatGLM2_6B()
