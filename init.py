@@ -30,7 +30,7 @@ class init_model:
         try:
             with httpx.Client() as client:
                 r = client.get(url)
-                file = f"/tmp/{self.prefix}/{filename}"
+                file = f"/tmp/{filename}"
                 with open(file, "wb") as f:
                     f.write(r.content)
             print(f"下载完成: {filename}", flush=True)
