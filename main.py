@@ -20,13 +20,13 @@ from config import (
 )
 import torch
 import gc
-from model.chatglm import chatGLM2_6B
+from init import init_model
 
 
 TIMEOUT = 120
 model_lists = ["chatglm2-6b"]
-model = None
-model = chatGLM2_6B()
+init = init_model
+model = init.main()
 
 
 app = FastAPI()
@@ -42,7 +42,6 @@ app.add_middleware(
 # 设计V1版本的接口
 @app.get("/v1/models", response_model=ModelList)
 async def list_models():
-    global model_args
     for model in model_lists:
         model_card = ModelCard(id=model)
     return ModelList(data=[model_card])
@@ -51,9 +50,6 @@ async def list_models():
 @app.post("/v1/chat/completions", response_model=ChatCompletionResponse)
 async def create_chat_completion(request: ChatCompletionRequest):
     global model, last_access_time
-    # 如果model是None挂起这个连接。直到加载完毕
-    while model is None:
-        model = await chatGLM2_6B()
     query = request.messages[-1].content
     last_access_time = datetime.datetime.now()
     prev_messages = request.messages[:-1]
@@ -80,8 +76,6 @@ async def create_chat_completion(request: ChatCompletionRequest):
 @app.post("/chatglm", response_model=ChatResponse)
 async def create_chat_completion(request: ChatRequest):
     global model, last_access_time
-    while model is None:
-        model = await chatGLM2_6B()
     last_access_time = datetime.datetime.now()
     query = request.prompt
     history = request.history
