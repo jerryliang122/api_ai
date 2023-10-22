@@ -23,6 +23,8 @@ class init_model:
         for file in response["Contents"]:
             url = self.client.get_presigned_url(Method="GET", Bucket=self.bucket, Key=file["Key"], Expired=120)
             print(file["Key"], flush=True)
+            if file["key"] == self.prefix:
+                continue
             urls.append((file["Key"], url))
         return urls
 
