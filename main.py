@@ -28,6 +28,8 @@ TIMEOUT = 120
 model_lists = ["chatglm2-6b"]
 init_m = init_model()
 model = init_m.main()
+if model == True:
+    model = chatGLM2_6B()
 
 
 app = FastAPI()

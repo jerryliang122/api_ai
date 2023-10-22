@@ -3,6 +3,7 @@ from qcloud_cos import CosS3Client
 import os
 import httpx
 from model.chatglm import chatGLM2_6B
+import threading
 
 
 class init_model:
@@ -47,4 +48,4 @@ class init_model:
         os.mkdir(f"/tmp/{self.prefix}")
         for filename, url in urls:
             download = self.download_file(url, filename)
-        return chatGLM2_6B()
+        return True
