@@ -3,7 +3,7 @@ from qcloud_cos import CosS3Client
 import os
 import httpx
 from model.chatglm import chatGLM2_6B
-import threading
+from concurrent.futures import ThreadPoolExecutor
 
 
 class init_model:
@@ -46,6 +46,8 @@ class init_model:
     def main(self):
         urls = self.file_list_url()
         os.mkdir(f"/tmp/{self.prefix}")
-        for filename, url in urls:
-            download = self.download_file(url, filename)
+        # 使用多线程的方式下载文件
+        with ThreadPoolExecutor(max_workers=5) as executor:
+            for file, url in urls:
+                executor.submit(self.download_file, url, file)
         return True
