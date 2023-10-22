@@ -49,7 +49,7 @@ jobs:
     - name: Cache Docker layers
       uses: actions/cache@v2
       with:
-        path: /var/lib/docker
+        path: /tmp/docker
         key: docker-${{ runner.os }}-${{ hashFiles('./Dockerfile') }}
         restore-keys: |
           docker-${{ runner.os }}
@@ -61,3 +61,5 @@ jobs:
         push: true
         context: .
         tags: ccr.ccs.tencentyun.com/jerryliang/chatglm2:latest
+        cache-from: type=local,src=/tmp/docker
+        cache-to: type=local,dest=/tmp/docker
