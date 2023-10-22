@@ -50,9 +50,9 @@ jobs:
       uses: actions/cache@v2
       with:
         path: /var/lib/docker
-        key: docker-${{ runner.os }}-${{ hashFiles('**/Dockerfile') }}
+        key: docker-${{ runner.os }}-${{ hashFiles('./Dockerfile') }}
         restore-keys: |
-          docker-${{ runner.os }}-
+          docker-${{ runner.os }}
           
     # 构建镜像, 并打 tag
     - name: Build docker image
