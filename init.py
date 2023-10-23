@@ -30,18 +30,22 @@ class init_model:
         return urls
 
     def download_file(self, url, filename):
-        try:
-            with httpx.Client() as client:
-                r = client.get(url)
-                file = f"/tmp/{filename}"
-                with open(file, "wb") as f:
-                    f.write(r.content)
-            print(f"下载完成: {filename}", flush=True)
-            return True
-        except Exception as e:
-            print(f"下载失败: {filename}", flush=True)
-            raise Exception("已终止下载")
-            return False
+        retries = 0  # 设置重试次数的初始值
+        max_retries = 5
+        while retries < max_retries:
+            try:
+                with httpx.Client() as client:
+                    r = client.get(url)
+                    file = f"/tmp/{filename}"
+                    with open(file, "wb") as f:
+                        f.write(r.content)
+                print(f"下载完成: {filename}", flush=True)
+                return True
+            except Exception as e:
+                retries += 1
+        print(f"无法下载文件: {filename}", flush=True)
+        raise Exception("已达到最大重试次数")
+        return False
 
     def main(self):
         urls = self.file_list_url()
