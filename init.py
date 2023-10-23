@@ -38,14 +38,15 @@ class init_model:
                     Bucket=self.bucket,
                     Key=filename,
                     DestFilePath=f"/tmp/{filename}",
-                    PartSize=1024,
+                    PartSize=500,
                     EnableCRC=False,
-                    MAXThread=2,
+                    MAXThread=4,
                 )
                 print(f"下载文件{filename}成功", flush=True)
                 break
             except CosClientError or CosServiceError as e:
-                print(e)
+                print(f"下载失败:{filename}", flush=True)
+                print(e, flush=True)
 
     def main(self):
         urls = self.file_list_url()
