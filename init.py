@@ -38,8 +38,8 @@ class init_model:
                     Bucket=self.bucket,
                     Key=filename,
                     DestFilePath=f"/tmp/{filename}",
-                    PartSize=50,
-                    EnableCRC=True,
+                    PartSize=1024,
+                    EnableCRC=False,
                     MAXThread=5,
                 )
                 break
