@@ -61,3 +61,4 @@ jobs:
         tags: ccr.ccs.tencentyun.com/jerryliang/chatglm2:latest
         cache-from: type=local,src=/tmp/docker
         cache-to: type=local,dest=/tmp/docker
+        load: true

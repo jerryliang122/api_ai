@@ -4,6 +4,7 @@ import os
 import httpx
 from model.chatglm import chatGLM2_6B
 from concurrent.futures import ThreadPoolExecutor
+from qcloud_cos.cos_exception import CosClientError, CosServiceError
 
 
 class init_model:
@@ -22,7 +23,8 @@ class init_model:
         urls = []
         response = self.client.list_objects(Bucket=self.bucket, Prefix=self.prefix)
         for file in response["Contents"]:
-            url = self.client.get_presigned_url(Method="GET", Bucket=self.bucket, Key=file["Key"], Expired=120)
+            # url = self.client.get_presigned_url(Method="GET", Bucket=self.bucket, Key=file["Key"], Expired=120)
+            url = 1
             print(f'读取文件{file["Key"]}', flush=True)
             if file["Key"] == self.prefix:
                 continue
@@ -30,22 +32,19 @@ class init_model:
         return urls
 
     def download_file(self, url, filename):
-        retries = 0  # 设置重试次数的初始值
-        max_retries = 5
-        while retries < max_retries:
+        for i in range(0, 10):
             try:
-                with httpx.Client() as client:
-                    r = client.get(url)
-                    file = f"/tmp/{filename}"
-                    with open(file, "wb") as f:
-                        f.write(r.content)
-                print(f"下载完成: {filename}", flush=True)
-                return True
-            except Exception as e:
-                retries += 1
-        print(f"无法下载文件: {filename}", flush=True)
-        raise Exception("已达到最大重试次数")
-        return False
+                self.client.download_file(
+                    Bucket=self.bucket,
+                    Key=filename,
+                    DestFilePath=f"/tmp/{filename}",
+                    PartSize=50,
+                    EnableCRC=True,
+                    MAXThread=5,
+                )
+                break
+            except CosClientError or CosServiceError as e:
+                print(e)
 
     def main(self):
         urls = self.file_list_url()
