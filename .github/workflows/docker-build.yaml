@@ -51,8 +51,6 @@ jobs:
       with:
         path: /tmp/docker
         key: docker-${{ runner.os }}-${{ hashFiles('./Dockerfile') }}
-        restore-keys: |
-          docker-${{ runner.os }}
           
     # 构建镜像, 并打 tag
     - name: Build docker image
