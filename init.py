@@ -40,8 +40,9 @@ class init_model:
                     DestFilePath=f"/tmp/{filename}",
                     PartSize=1024,
                     EnableCRC=False,
-                    MAXThread=5,
+                    MAXThread=2,
                 )
+                print(f"下载文件{filename}成功", flush=True)
                 break
             except CosClientError or CosServiceError as e:
                 print(e)
