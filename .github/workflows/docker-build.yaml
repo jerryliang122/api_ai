@@ -58,6 +58,6 @@ jobs:
       with:
         push: true
         context: .
-        tags: ccr.ccs.tencentyun.com/jerryliang/chatglm2:latest
+        tags: ccr.ccs.tencentyun.com/jerryliang/chatglm2:v1.0
         cache-from: type=local,src=/tmp/docker
         cache-to: type=local,dest=/tmp/docker
