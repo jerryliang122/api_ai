@@ -15,7 +15,7 @@ class init_model:
         self.bucket = os.environ.get("BUCKET")
         self.prefix = os.environ.get("PREFIX")
         token = None
-        scheme = "https"
+        scheme = "http"
         config = CosConfig(Region=region, SecretId=secret_id, SecretKey=secret_key, Token=token, Scheme=scheme)
         self.client = CosS3Client(config)
 
@@ -23,8 +23,7 @@ class init_model:
         urls = []
         response = self.client.list_objects(Bucket=self.bucket, Prefix=self.prefix)
         for file in response["Contents"]:
-            # url = self.client.get_presigned_url(Method="GET", Bucket=self.bucket, Key=file["Key"], Expired=120)
-            url = 1
+            url = self.client.get_presigned_url(Method="GET", Bucket=self.bucket, Key=file["Key"], Expired=120)
             print(f'读取文件{file["Key"]}', flush=True)
             if file["Key"] == self.prefix:
                 continue
@@ -32,27 +31,28 @@ class init_model:
         return urls
 
     def download_file(self, url, filename):
-        for i in range(0, 10):
+        retries = 0  # 设置重试次数的初始值
+        max_retries = 5
+        while retries < max_retries:
             try:
-                self.client.download_file(
-                    Bucket=self.bucket,
-                    Key=filename,
-                    DestFilePath=f"/tmp/{filename}",
-                    PartSize=500,
-                    EnableCRC=False,
-                    MAXThread=4,
-                )
-                print(f"下载文件{filename}成功", flush=True)
-                break
-            except CosClientError or CosServiceError as e:
-                print(f"下载失败:{filename}", flush=True)
-                print(e, flush=True)
+                with httpx.Client() as client:
+                    r = client.get(url)
+                    file = f"/tmp/{filename}"
+                    with open(file, "wb") as f:
+                        f.write(r.content)
+                print(f"下载完成: {filename}", flush=True)
+                return True
+            except Exception as e:
+                retries += 1
+        print(f"无法下载文件: {filename}", flush=True)
+        raise Exception("已达到最大重试次数")
+        return False
 
     def main(self):
         urls = self.file_list_url()
         os.mkdir(f"/tmp/{self.prefix}")
         # 使用多线程的方式下载文件
-        with ThreadPoolExecutor(max_workers=1) as executor:
+        with ThreadPoolExecutor(max_workers=2) as executor:
             for file, url in urls:
                 executor.submit(self.download_file, url, file)
         return True
