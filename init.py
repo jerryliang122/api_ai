@@ -3,7 +3,7 @@ from qcloud_cos import CosS3Client
 import os
 import httpx
 from model.chatglm import chatGLM2_6B
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, wait
 from qcloud_cos.cos_exception import CosClientError, CosServiceError
 
 
@@ -53,6 +53,9 @@ class init_model:
         os.mkdir(f"/tmp/{self.prefix}")
         # 使用多线程的方式下载文件
         with ThreadPoolExecutor(max_workers=3) as executor:
+            futures = []
             for file, url in urls:
-                executor.submit(self.download_file, url, file)
+                future = executor.submit(self.download_file, url, file)
+                futures.append(future)
+            wait(futures)
         return True
