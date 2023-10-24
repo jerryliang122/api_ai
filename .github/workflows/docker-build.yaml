@@ -50,7 +50,7 @@ jobs:
       uses: actions/cache@v3
       with:
         path: /tmp/docker
-        key: docker-${{ runner.os }}-${{ hashFiles('./Dockerfile') }}
+        key: docker-${{ runner.os }}-${{ hashFiles('./dockerfile') }}
           
     # 构建镜像, 并打 tag
     - name: Build docker image
