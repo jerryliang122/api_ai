@@ -1,4 +1,4 @@
-FROM python:3.10.9-slim
+FROM pytorch/pytorch:2.1.0-cuda11.8-cudnn8-runtime
 WORKDIR /app
 RUN apt-get update  && apt install git wget -y && apt-get clean 
 COPY requirements.txt /app/
