@@ -52,7 +52,7 @@ class init_model:
         urls = self.file_list_url()
         os.mkdir(f"/tmp/{self.prefix}")
         # 使用多线程的方式下载文件
-        with ThreadPoolExecutor(max_workers=2) as executor:
+        with ThreadPoolExecutor(max_workers=3) as executor:
             for file, url in urls:
                 executor.submit(self.download_file, url, file)
         return True
