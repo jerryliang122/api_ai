@@ -42,7 +42,8 @@ class init_model:
                     with open(file, "wb") as f:
                         f.write(r.content)
                     server_crc = r.headers.get("x-cos-hash-crc64ecma")
-                local_crc = fastcrc.crc64.ecma_182(file)
+                with open(file, "rb") as f:
+                    local_crc = fastcrc.crc64.ecma_182(f)
                 if server_crc == local_crc:
                     print(f"下载完成: {filename}", flush=True)
                 else:
