@@ -51,7 +51,7 @@ class init_model:
                 return True
             except Exception as e:
                 retries += 1
-        print(f"无法下载文件: {filename}", flush=True)
+        print(f"无法下载文件: {filename}，报错原因{e}", flush=True)
         raise Exception("已达到最大重试次数")
         return False
 
