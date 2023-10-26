@@ -5,6 +5,7 @@ import httpx
 from model.chatglm import chatGLM2_6B
 from concurrent.futures import ThreadPoolExecutor, wait
 from qcloud_cos.cos_exception import CosClientError, CosServiceError
+import fastcrc
 
 
 class init_model:
@@ -23,7 +24,7 @@ class init_model:
         urls = []
         response = self.client.list_objects(Bucket=self.bucket, Prefix=self.prefix)
         for file in response["Contents"]:
-            url = self.client.get_presigned_url(Method="GET", Bucket=self.bucket, Key=file["Key"], Expired=120)
+            url = self.client.get_presigned_url(Method="GET", Bucket=self.bucket, Key=file["Key"], Expired=300)
             print(f'读取文件{file["Key"]}', flush=True)
             if file["Key"] == self.prefix:
                 continue
@@ -40,7 +41,12 @@ class init_model:
                     file = f"/tmp/{filename}"
                     with open(file, "wb") as f:
                         f.write(r.content)
-                print(f"下载完成: {filename}", flush=True)
+                    server_crc = r.headers.get("x-cos-hash-crc64ecma")
+                local_crc = fastcrc.crc64.ecma_182(file)
+                if server_crc == local_crc:
+                    print(f"下载完成: {filename}", flush=True)
+                else:
+                    print(f"下载失败: {filename},校验错误，本地值:{str(local_crc)},服务器值:{str(server_crc)}", flush=True)
                 return True
             except Exception as e:
                 retries += 1
