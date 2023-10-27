@@ -38,10 +38,10 @@ class init_model:
             try:
                 with httpx.Client() as client:
                     r = client.get(url)
+                    server_crc = r.headers.get("x-cos-hash-crc64ecma")
                     file = f"/tmp/{filename}"
                     with open(file, "wb") as f:
                         f.write(r.content)
-                    server_crc = r.headers.get("x-cos-hash-crc64ecma")
                 with open(file, "rb") as f:
                     local_crc = fastcrc.crc64.ecma_182(f)
                 if server_crc == local_crc:
