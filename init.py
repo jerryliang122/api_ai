@@ -42,7 +42,8 @@ class init_model:
                     file = f"/tmp/{filename}"
                     with open(file, "wb") as f:
                         f.write(r.content)
-                        local_crc = fastcrc.crc64.ecma_182(f)
+                with open(file, "rb") as f:
+                    local_crc = fastcrc.crc64.ecma_182(f.read())
                 if server_crc == local_crc:
                     print(f"下载完成: {filename}", flush=True)
                 else:
