@@ -42,8 +42,7 @@ class init_model:
                     file = f"/tmp/{filename}"
                     with open(file, "wb") as f:
                         f.write(r.content)
-                with open(file, "rb") as f:
-                    local_crc = fastcrc.crc64.ecma_182(f)
+                        local_crc = fastcrc.crc64.ecma_182(f)
                 if server_crc == local_crc:
                     print(f"下载完成: {filename}", flush=True)
                 else:
@@ -51,7 +50,7 @@ class init_model:
                 return True
             except Exception as e:
                 retries += 1
-        print(f"无法下载文件: {filename}，报错原因{e}", flush=True)
+                print(f"无法下载文件: {filename}，报错原因{e}", flush=True)
         raise Exception("已达到最大重试次数")
         return False
 
