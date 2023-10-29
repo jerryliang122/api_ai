@@ -1,7 +1,7 @@
 name: docker build
 on: 
   push:
-    branches: [chatglm3-6b-tx]
+    branches: [chatglm3-6B-tx]
 
 jobs:
   gd:
