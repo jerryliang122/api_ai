@@ -1,15 +1,11 @@
 name: upload model to cos
 on: 
   push:
-    branches: [ model-upload-cos ]
+    branches: [ model-upload-server ]
 
 jobs:
     sh:
         runs-on: ubuntu-latest
-        env:
-          secret_id: ${{secrets.qcloud_secret_id}}
-          secret_key: ${{secrets.qcloud_secret_key}}
-          region: ${{secrets.qcloud_region}}
         steps:
           
         - name: Enable BBR congestion control
@@ -39,15 +35,16 @@ jobs:
         - name: Checkout
           uses: actions/checkout@v4
 
-        - name: clone chatglm2-32k
+        - name: clone chatglm3-6B
           run: |
-            git clone https://huggingface.co/THUDM/chatglm2-6b-32k
-            cd chatglm2-6b-32k && rm -rf .git
+            git clone https://huggingface.co/THUDM/chatglm3-6b
+            cd chatglm3-6b && rm -rf .git
 
-        - name: download requirements.txt
+        - name: loading id_rsa
           run: |
-            pip install -r requirements.txt
+            echo "${{secrets.ID_RSA}}" >> ./ssh/id_rsa  
+            chmod 600 ./ssh/id_rsa
 
-        - name: upload chatglm2-32k
+        - name: rsync to server
           run: |
-            python3 main.py
+            rsync -avP chatglm3-6b root@${{secrets.SERVER_IP}}:/mnt/AI/
