@@ -1,0 +1,65 @@
+version: "3.9"
+
+services:
+  # Worker 控制器，实现Worker 的分布式调度
+  fastchat-controller:
+    image: ccr.ccs.tencentyun.com/jerryliang/llm:fastchat
+    ports:
+      - "21001:21001"
+      - "7860:7860"
+    entrypoint:
+      [
+        "python3",
+        "-m",
+        "fastchat.serve.controller",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "21001"
+      ]
+    depends_on:
+      - fastchat-worker-chatglm3
+
+  # OpenAi 兼容接口
+  fastchat-api-server:
+    image: ccr.ccs.tencentyun.com/jerryliang/llm:fastchat
+    ports:
+      - "9000:9000"
+    depends_on:
+      - fastchat-controller
+    entrypoint:
+      [
+        "python3.9",
+        "-m",
+        "fastchat.serve.openai_api_server",
+        "--controller-address",
+        "http://fastchat-controller:21001",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "9000"
+      ]
+
+  fastchat-worker-chatglm3:
+    volumes:
+      - /mnt:/mnt
+    image: ccr.ccs.tencentyun.com/jerryliang/llm:fastchat
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: [ '0' ]
+              capabilities: [ gpu ]
+    entrypoint:
+      [
+        "python",
+        "-m",
+        "fastchat.serve.model_worker",
+        "--model-names=chatglm3",
+        "--model-path=/mnt/chatglm3-6b",
+        "--worker-address=http://fastchat-worker-qwen:21002",
+        "--controller-address=http://fastchat-controller:21001",
+        "--host=0.0.0.0",
+        "--port=21002"
+      ]
