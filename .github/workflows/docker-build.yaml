@@ -1,7 +1,7 @@
 name: docker build
 on: 
   push:
-    branches: [chatglm3-6B-tx]
+    branches: [fastchat-docker]
 
 jobs:
   gd:
@@ -58,6 +58,6 @@ jobs:
       with:
         push: true
         context: .
-        tags: ccr.ccs.tencentyun.com/jerryliang/llm:chatglm3
+        tags: ccr.ccs.tencentyun.com/jerryliang/llm:fastchat
         cache-from: type=local,src=/tmp/docker
         cache-to: type=local,dest=/tmp/docker
