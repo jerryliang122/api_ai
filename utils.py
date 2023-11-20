@@ -26,11 +26,11 @@ def auto_configure_device_map(num_gpus: int) -> Dict[str, int]:
     # 本文件来源于https://github.com/THUDM/ChatGLM-6B/blob/main/utils.py
     # 仅此处做少许修改以支持ChatGLM3
     device_map = {
-        "transformer.embedding.word_embeddings": 0,
-        "transformer.encoder.final_layernorm": 0,
-        "transformer.output_layer": 0,
-        "transformer.rotary_pos_emb": 0,
-        "lm_head": 0,
+        'transformer.embedding.word_embeddings': 0,
+        'transformer.encoder.final_layernorm': 0,
+        'transformer.output_layer': 0,
+        'transformer.rotary_pos_emb': 0,
+        'lm_head': 0
     }
 
     used = 2
@@ -40,30 +40,20 @@ def auto_configure_device_map(num_gpus: int) -> Dict[str, int]:
             gpu_target += 1
             used = 0
         assert gpu_target < num_gpus
-        device_map[f"transformer.encoder.layers.{i}"] = gpu_target
+        device_map[f'transformer.encoder.layers.{i}'] = gpu_target
         used += 1
 
     return device_map
 
 
-def load_model_on_gpus(
-    checkpoint_path: Union[str, os.PathLike],
-    num_gpus: int = 2,
-    device_map: Optional[Dict[str, int]] = None,
-    **kwargs,
-) -> Module:
+def load_model_on_gpus(checkpoint_path: Union[str, os.PathLike], num_gpus: int = 2,
+                       device_map: Optional[Dict[str, int]] = None, **kwargs) -> Module:
     if num_gpus < 2 and device_map is None:
-        model = (
-            AutoModel.from_pretrained(checkpoint_path, trust_remote_code=True, **kwargs)
-            .half()
-            .cuda()
-        )
+        model = AutoModel.from_pretrained(checkpoint_path, trust_remote_code=True, **kwargs).half().cuda()
     else:
         from accelerate import dispatch_model
 
-        model = AutoModel.from_pretrained(
-            checkpoint_path, trust_remote_code=True, **kwargs
-        ).half()
+        model = AutoModel.from_pretrained(checkpoint_path, trust_remote_code=True, **kwargs).half()
 
         if device_map is None:
             device_map = auto_configure_device_map(num_gpus)
@@ -75,7 +65,7 @@ def load_model_on_gpus(
 
 class InvalidScoreLogitsProcessor(LogitsProcessor):
     def __call__(
-        self, input_ids: torch.LongTensor, scores: torch.FloatTensor
+            self, input_ids: torch.LongTensor, scores: torch.FloatTensor
     ) -> torch.FloatTensor:
         if torch.isnan(scores).any() or torch.isinf(scores).any():
             scores.zero_()
@@ -100,28 +90,25 @@ def process_response(output: str, use_tool: bool = False) -> Union[str, dict]:
                 parameters = eval(content)
                 content = {
                     "name": metadata.strip(),
-                    "arguments": json.dumps(parameters, ensure_ascii=False),
+                    "arguments": json.dumps(parameters, ensure_ascii=False)
                 }
             else:
-                content = {"name": metadata.strip(), "content": content}
+                content = {
+                    "name": metadata.strip(),
+                    "content": content
+                }
     return content
 
 
 @torch.inference_mode()
-def generate_stream_chatglm3(
-    model: PreTrainedModel, tokenizer: PreTrainedTokenizer, params: dict
-):
+def generate_stream_chatglm3(model: PreTrainedModel, tokenizer: PreTrainedTokenizer, params: dict):
     messages = params["messages"]
     functions = params["functions"]
     temperature = float(params.get("temperature", 1.0))
     repetition_penalty = float(params.get("repetition_penalty", 1.0))
     top_p = float(params.get("top_p", 1.0))
-    max_new_tokens = int(params.get("max_tokens", None))
-    max_length = params.get("max_length", None)
-    # TODO 废弃max_length,使用max_new_tokens
-
+    max_new_tokens = int(params.get("max_tokens", 256))
     echo = params.get("echo", True)
-
     messages = process_chatglm_messages(messages, functions=functions)
     query, role = messages[-1]["content"], messages[-1]["role"]
 
@@ -132,16 +119,6 @@ def generate_stream_chatglm3(
     if input_echo_len >= model.config.seq_length:
         print(f"Input length larger than {model.config.seq_length}")
 
-    # TODO 废弃max_length,使用max_new_tokens
-    if (
-        max_new_tokens is not None and max_length is not None
-    ):  # OpenAI接口的用户传入的应该是max_new_tokens才是适配OpenAI接口的。
-        max_length = None
-
-    if max_new_tokens is None and max_length is None:  # 什么参数都没传
-        max_new_tokens = 256
-        max_length = min(max_new_tokens + input_echo_len, model.config.seq_length)
-
     eos_token_id = [
         tokenizer.eos_token_id,
         tokenizer.get_command("<|user|>"),
@@ -149,7 +126,6 @@ def generate_stream_chatglm3(
 
     gen_kwargs = {
         "max_new_tokens": max_new_tokens,
-        "max_length": max_length,
         "do_sample": True if temperature > 1e-5 else False,
         "top_p": top_p,
         "repetition_penalty": repetition_penalty,
@@ -159,9 +135,7 @@ def generate_stream_chatglm3(
         gen_kwargs["temperature"] = temperature
 
     total_len = 0
-    for total_ids in model.stream_generate(
-        **inputs, eos_token_id=eos_token_id, **gen_kwargs
-    ):
+    for total_ids in model.stream_generate(**inputs, eos_token_id=eos_token_id, **gen_kwargs):
         total_ids = total_ids.tolist()[0]
         total_len = len(total_ids)
         if echo:
@@ -211,29 +185,36 @@ def process_chatglm_messages(messages, functions=None):
             {
                 "role": "system",
                 "content": "Answer the following questions as best as you can. You have access to the following tools:",
-                "tools": functions,
+                "tools": functions
             }
         )
 
     for m in _messages:
         role, content, func_call = m.role, m.content, m.function_call
         if role == "function":
-            messages.append({"role": "observation", "content": content})
+            messages.append(
+                {
+                    "role": "observation",
+                    "content": content
+                }
+            )
 
         elif role == "assistant" and func_call is not None:
             for response in content.split("<|assistant|>"):
                 metadata, sub_content = response.split("\n", maxsplit=1)
                 messages.append(
-                    {"role": role, "metadata": metadata, "content": sub_content.strip()}
+                    {
+                        "role": role,
+                        "metadata": metadata,
+                        "content": sub_content.strip()
+                    }
                 )
         else:
             messages.append({"role": role, "content": content})
     return messages
 
 
-def generate_chatglm3(
-    model: PreTrainedModel, tokenizer: PreTrainedTokenizer, params: dict
-):
+def generate_chatglm3(model: PreTrainedModel, tokenizer: PreTrainedTokenizer, params: dict):
     for response in generate_stream_chatglm3(model, tokenizer, params):
         pass
     return response
