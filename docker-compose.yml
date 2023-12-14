@@ -3,6 +3,13 @@ version: '3.9'
 services:
   chatglm3:
     image: ccr.ccs.tencentyun.com/jerryliang/llm:chatglm3
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: [ '0' ]
+              capabilities: [ gpu ]
     environment:
       - TZ=Asia/Shanghai
       - TOKENIZER_PATH=/mnt/chatglm3-6b
