@@ -5,8 +5,8 @@ services:
     image: ccr.ccs.tencentyun.com/jerryliang/llm:chatglm3
     environment:
       - TZ=Asia/Shanghai
-      - TOKENIZER_PATH =/mnt/chatglm3-6b
-      - MODEL_PATH =/mnt/chatglm3-6b
+      - TOKENIZER_PATH=/mnt/chatglm3-6b
+      - MODEL_PATH=/mnt/chatglm3-6b
     ports:
       - 9000:9000
     volumes:
