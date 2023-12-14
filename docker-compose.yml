@@ -1,0 +1,9 @@
+version: '3.9'
+
+services:
+  chatglm3:
+    image: ccr.ccs.tencentyun.com/jerryliang/llm:chatglm3
+    environment:
+      - TZ=Asia/Shanghai
+    ports:
+      - 9000:9000
