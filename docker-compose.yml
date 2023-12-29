@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   chatglm3:
-    image: ccr.ccs.tencentyun.com/jerryliang/llm:chatglm3
+    image: registry.cn-shanghai.aliyuncs.com/jerryliang/chatglm3:latest
     deploy:
       resources:
         reservations:
